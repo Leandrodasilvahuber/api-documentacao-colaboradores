@@ -1,0 +1,28 @@
+{
+  "name": "api-documentacao-colaboradores",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
+    "start": "node dist/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Leandrodasilvahuber/api-documentacao-colaboradores.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Leandrodasilvahuber/api-documentacao-colaboradores/issues"
+  },
+  "homepage": "https://github.com/Leandrodasilvahuber/api-documentacao-colaboradores#readme",
+  "devDependencies": {
+    "@types/node": "^26.1.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.9.3"
+  }
+}
