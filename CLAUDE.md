@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project status
 
-This is a freshly scaffolded Node.js + TypeScript project (`api-documentacao-colaboradores`). It currently contains only an entry point (`src/index.ts`) — no framework, routes, or business logic have been added yet. There is no test runner configured.
+This is a Node.js + TypeScript project (`api-documentacao-colaboradores`) using Express. `src/index.ts` sets up the Express app and starts the HTTP server; no routes beyond `GET /` have been added yet. There is no test runner configured.
+
+Server port comes from `process.env.PORT`, defaulting to `3000`.
 
 ## Commands
 
