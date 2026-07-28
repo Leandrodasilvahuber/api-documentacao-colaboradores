@@ -11,7 +11,7 @@ Server port comes from `process.env.PORT`, defaulting to `3000`.
 ## Commands
 
 - `npm run build` — compile TypeScript (`src/`) to JavaScript (`dist/`) via `tsc`
-- `npm run dev` — run `src/index.ts` directly with `ts-node-dev` (auto-restarts on file changes, transpile-only)
+- `npm run dev` — run `src/server.ts` directly with `tsx watch` (auto-restarts on file changes)
 - `npm run start` — run the compiled output at `dist/index.js` (requires `npm run build` first)
 
 - `npm test` — run Jest (`jest --passWithNoTests`, so it doesn't fail while no test files exist yet)
@@ -22,7 +22,7 @@ There is no lint command configured yet.
 
 - `tsconfig.json` uses `module`/`moduleResolution: nodenext` and targets `es2020`, with `rootDir: src` / `outDir: dist`.
 - Strict mode is on, plus extra strictness flags: `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`, `noImplicitReturns`, `noFallthroughCasesInSwitch`, `noUnusedLocals`, `noUnusedParameters`.
-- The pinned TypeScript version is `^5.9.3`, not the TS 7 native-preview line — `ts-node-dev`/`ts-node` are not yet compatible with TypeScript 7, so do not upgrade past the 5.x line without verifying tooling compatibility first.
+- The pinned TypeScript version is `^5.9.3`, not the TS 7 native-preview line — `tsx` is not yet compatible with TypeScript 7, so do not upgrade past the 5.x line without verifying tooling compatibility first.
 
 ## Commit message convention
 

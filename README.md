@@ -16,7 +16,7 @@ API em Node.js + TypeScript (Express) para documentação de colaboradores.
 
 ## Scripts
 
-- `npm run dev` — roda `src/server.ts` com `ts-node-dev` (reinicia automaticamente ao alterar arquivos)
+- `npm run dev` — roda `src/server.ts` com `tsx watch` (reinicia automaticamente ao alterar arquivos)
 - `npm run build` — compila `src/` para `dist/` via `tsc`
 - `npm run start` — roda o build compilado (`dist/server.js`), requer `npm run build` antes
 - `npm test` — roda os testes com Jest
