@@ -23,3 +23,14 @@ model Collaborator {
 
   @@map("collaborators")
 }
+
+model DocumentType {
+  id          String    @id @default(uuid())
+  name        String
+  description String?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+  deletedAt   DateTime? @map("deleted_at")
+
+  @@map("document_types")
+}
