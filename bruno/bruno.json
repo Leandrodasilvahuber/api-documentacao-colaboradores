@@ -1,0 +1,6 @@
+{
+  "version": "1",
+  "name": "API Documentação Colaboradores",
+  "type": "collection",
+  "ignore": ["node_modules", ".git"]
+}

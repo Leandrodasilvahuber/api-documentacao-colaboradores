@@ -1,0 +1,17 @@
+meta {
+  name: Buscar colaborador por id
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/collaborators/{{collaboratorId}}
+  body: none
+  auth: none
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+}

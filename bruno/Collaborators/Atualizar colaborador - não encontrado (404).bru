@@ -1,0 +1,27 @@
+meta {
+  name: Atualizar colaborador - não encontrado (404)
+  type: http
+  seq: 8
+}
+
+put {
+  url: {{baseUrl}}/collaborators/00000000-0000-0000-0000-000000000000
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "Não existe"
+  }
+}
+
+tests {
+  test("Status 404", function() {
+    expect(res.getStatus()).to.equal(404);
+  });
+}

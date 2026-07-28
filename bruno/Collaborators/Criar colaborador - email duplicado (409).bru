@@ -1,0 +1,28 @@
+meta {
+  name: Criar colaborador - email duplicado (409)
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/collaborators
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "John Doe",
+    "email": "john.doe@example.com"
+  }
+}
+
+tests {
+  test("Status 409", function() {
+    expect(res.getStatus()).to.equal(409);
+  });
+}

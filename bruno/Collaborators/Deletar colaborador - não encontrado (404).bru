@@ -1,0 +1,17 @@
+meta {
+  name: Deletar colaborador - não encontrado (404)
+  type: http
+  seq: 10
+}
+
+delete {
+  url: {{baseUrl}}/collaborators/00000000-0000-0000-0000-000000000000
+  body: none
+  auth: none
+}
+
+tests {
+  test("Status 404", function() {
+    expect(res.getStatus()).to.equal(404);
+  });
+}

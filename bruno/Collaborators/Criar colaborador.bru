@@ -1,0 +1,35 @@
+meta {
+  name: Criar colaborador
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/collaborators
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "John Doe",
+    "email": "john.doe@example.com"
+  }
+}
+
+tests {
+  test("Status 201", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+}
+
+script:post-response {
+  if (res.getStatus() === 201) {
+    const body = res.getBody();
+    bru.setVar('collaboratorId', body.id);
+  }
+}

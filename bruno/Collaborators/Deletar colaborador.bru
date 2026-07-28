@@ -1,0 +1,17 @@
+meta {
+  name: Deletar colaborador
+  type: http
+  seq: 9
+}
+
+delete {
+  url: {{baseUrl}}/collaborators/{{collaboratorId}}
+  body: none
+  auth: none
+}
+
+tests {
+  test("Status 204", function() {
+    expect(res.getStatus()).to.equal(204);
+  });
+}

@@ -1,0 +1,28 @@
+meta {
+  name: Criar colaborador - payload inválido (400)
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/collaborators
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "",
+    "email": "email-invalido"
+  }
+}
+
+tests {
+  test("Status 400", function() {
+    expect(res.getStatus()).to.equal(400);
+  });
+}
