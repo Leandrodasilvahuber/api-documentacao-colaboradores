@@ -1,5 +1,6 @@
 import express from "express";
 import { collaboratorRoutes } from "./modules/collaborator/collaborator.routes";
+import { documentTypeRoutes } from "./modules/document-type/document-type.routes";
 import { errorHandler } from "./shared/middlewares/errorHandler";
 
 const app = express();
@@ -11,6 +12,7 @@ app.get("/", (_req, res) => {
 });
 
 app.use("/collaborators", collaboratorRoutes);
+app.use("/document-types", documentTypeRoutes);
 
 app.use(errorHandler);
 
