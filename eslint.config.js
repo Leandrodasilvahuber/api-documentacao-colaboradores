@@ -13,6 +13,12 @@ module.exports = tseslint.config(
     languageOptions: {
       globals: globals.node,
     },
+    rules: {
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
+      ],
+    },
   },
   {
     files: ["eslint.config.js", "jest.config.js"],
