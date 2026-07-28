@@ -1,5 +1,6 @@
 import express from "express";
 import { collaboratorRoutes } from "./modules/collaborator/collaborator.routes";
+import { errorHandler } from "./shared/middlewares/errorHandler";
 
 const app = express();
 
@@ -10,5 +11,7 @@ app.get("/", (_req, res) => {
 });
 
 app.use("/collaborators", collaboratorRoutes);
+
+app.use(errorHandler);
 
 export { app };
