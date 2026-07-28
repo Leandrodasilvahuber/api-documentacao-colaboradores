@@ -3,7 +3,9 @@ import { CreateDocumentTypeInput, UpdateDocumentTypeInput } from './document-typ
 
 export const documentTypeRepository = {
   create(data: CreateDocumentTypeInput) {
-    return prisma.documentType.create({ data });
+    return prisma.documentType.create({
+      data: { ...data, description: data.description ?? null },
+    });
   },
 
   findAll({ skip, take }: { skip: number; take: number }) {
