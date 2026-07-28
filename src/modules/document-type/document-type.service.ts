@@ -1,0 +1,53 @@
+import { AppError } from '../../shared/errors/AppError';
+import { buildPaginationMeta, getPaginationParams, PaginationInput } from '../../shared/utils/pagination';
+import { documentTypeRepository } from './document-type.repository';
+import { CreateDocumentTypeInput, UpdateDocumentTypeInput } from './document-type.schema';
+
+export const documentTypeService = {
+  async create(data: CreateDocumentTypeInput) {
+    const existing = await documentTypeRepository.findByName(data.name);
+    if (existing) {
+      throw new AppError('Já existe um tipo de documento com este nome', 409);
+    }
+
+    return documentTypeRepository.create(data);
+  },
+
+  async findAll(pagination: PaginationInput) {
+    const { skip, take } = getPaginationParams(pagination);
+    const [data, total] = await Promise.all([
+      documentTypeRepository.findAll({ skip, take }),
+      documentTypeRepository.count(),
+    ]);
+
+    return { data, meta: buildPaginationMeta(total, pagination) };
+  },
+
+  async findById(id: string) {
+    const documentType = await documentTypeRepository.findById(id);
+    if (!documentType) {
+      throw new AppError('Tipo de documento não encontrado', 404);
+    }
+
+    return documentType;
+  },
+
+  async update(id: string, data: UpdateDocumentTypeInput) {
+    await this.findById(id);
+
+    if (data.name) {
+      const existing = await documentTypeRepository.findByName(data.name);
+      if (existing && existing.id !== id) {
+        throw new AppError('Já existe um tipo de documento com este nome', 409);
+      }
+    }
+
+    return documentTypeRepository.update(id, data);
+  },
+
+  async delete(id: string) {
+    await this.findById(id);
+
+    return documentTypeRepository.delete(id);
+  },
+};
