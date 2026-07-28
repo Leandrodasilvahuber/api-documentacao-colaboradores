@@ -20,6 +20,10 @@ body:json {
   }
 }
 
+vars:pre-request {
+  baseUrl: localhost:3000
+}
+
 tests {
   test("Status 200", function() {
     expect(res.getStatus()).to.equal(200);

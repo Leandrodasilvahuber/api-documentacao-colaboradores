@@ -16,15 +16,13 @@ headers {
 
 body:json {
   {
-    "name": "John Doe",
-    "email": "john.doe@example.com"
+    "name": "John Doe2",
+    "email": "john.doe@example2.com"
   }
 }
 
-tests {
-  test("Status 201", function() {
-    expect(res.getStatus()).to.equal(201);
-  });
+vars:pre-request {
+  baseUrl: localhost:3000
 }
 
 script:post-response {
@@ -32,4 +30,10 @@ script:post-response {
     const body = res.getBody();
     bru.setVar('collaboratorId', body.id);
   }
+}
+
+tests {
+  test("Status 201", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
 }
