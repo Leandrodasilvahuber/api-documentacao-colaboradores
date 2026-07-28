@@ -9,12 +9,13 @@
     "moduleResolution": "nodenext",
     "target": "es2020",
     "lib": ["es2020"],
-    "types": ["node"],
+    "types": ["node", "jest"],
 
     // Other Outputs
     "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
+    "isolatedModules": true,
 
     // Stricter Typechecking Options
     "noUncheckedIndexedAccess": true,
