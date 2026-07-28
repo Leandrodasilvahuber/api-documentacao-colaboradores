@@ -40,6 +40,13 @@ API em Node.js + TypeScript (Express) para documentação de colaboradores.
 2. Suba o banco: `docker compose up -d`
 3. Os dados persistem entre reinicializações no volume `postgres_data` (só é apagado com `docker compose down -v`).
 
+## pgAdmin
+
+1. `docker compose up -d` também sobe o pgAdmin junto com o banco.
+2. Acesse `http://localhost:5050` (ou a porta definida em `PGADMIN_PORT`).
+3. Faça login com `PGADMIN_DEFAULT_EMAIL` / `PGADMIN_DEFAULT_PASSWORD` (definidos no `.env`).
+4. O servidor "api-documentacao-colaboradores" já aparece na árvore lateral, apontando para o serviço `db`; ao expandi-lo pela primeira vez, informe a senha do Postgres (`POSTGRES_PASSWORD`, default `postgres`) — pode marcar "Save Password" para não digitar de novo.
+
 ## Prisma
 
 1. Com o banco no ar e o `.env` configurado (`DATABASE_URL`), gere o client: `npm run prisma:generate`.

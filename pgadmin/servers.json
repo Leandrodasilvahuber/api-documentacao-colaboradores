@@ -1,0 +1,13 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "api-documentacao-colaboradores",
+      "Group": "Servers",
+      "Host": "db",
+      "Port": 5432,
+      "MaintenanceDB": "api_documentacao_colaboradores",
+      "Username": "postgres",
+      "SSLMode": "prefer"
+    }
+  }
+}
