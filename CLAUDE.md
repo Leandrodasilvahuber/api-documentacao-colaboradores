@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project status
 
-This is a Node.js + TypeScript project (`api-documentacao-colaboradores`) using Express. `src/index.ts` sets up the Express app and starts the HTTP server; no routes beyond `GET /` have been added yet. There is no test runner configured.
+This is a Node.js + TypeScript project (`api-documentacao-colaboradores`) using Express. `src/index.ts` sets up the Express app and starts the HTTP server; no routes beyond `GET /` have been added yet. Jest (with ts-jest) is configured as the test runner, but no test files exist yet.
 
 Server port comes from `process.env.PORT`, defaulting to `3000`.
 
@@ -14,7 +14,9 @@ Server port comes from `process.env.PORT`, defaulting to `3000`.
 - `npm run dev` — run `src/index.ts` directly with `ts-node-dev` (auto-restarts on file changes, transpile-only)
 - `npm run start` — run the compiled output at `dist/index.js` (requires `npm run build` first)
 
-There is no lint command and no test suite configured yet.
+- `npm test` — run Jest (`jest --passWithNoTests`, so it doesn't fail while no test files exist yet)
+
+There is no lint command configured yet.
 
 ## TypeScript configuration notes
 
