@@ -1,0 +1,38 @@
+import { prisma } from '../../shared/database/prisma';
+import { CreateDocumentTypeInput, UpdateDocumentTypeInput } from './document-type.schema';
+
+export const documentTypeRepository = {
+  create(data: CreateDocumentTypeInput) {
+    return prisma.documentType.create({ data });
+  },
+
+  findAll({ skip, take }: { skip: number; take: number }) {
+    return prisma.documentType.findMany({ where: { deletedAt: null }, skip, take });
+  },
+
+  count() {
+    return prisma.documentType.count({ where: { deletedAt: null } });
+  },
+
+  findById(id: string) {
+    return prisma.documentType.findFirst({ where: { id, deletedAt: null } });
+  },
+
+  findByName(name: string) {
+    return prisma.documentType.findFirst({ where: { name, deletedAt: null } });
+  },
+
+  update(id: string, data: UpdateDocumentTypeInput) {
+    const cleanData = Object.fromEntries(
+      Object.entries(data).filter(([, value]) => value !== undefined),
+    );
+    return prisma.documentType.update({ where: { id }, data: cleanData });
+  },
+
+  delete(id: string) {
+    return prisma.documentType.update({
+      where: { id },
+      data: { deletedAt: new Date() },
+    });
+  },
+};
