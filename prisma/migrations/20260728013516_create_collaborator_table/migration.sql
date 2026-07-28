@@ -11,4 +11,6 @@ CREATE TABLE "collaborators" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "collaborators_email_key" ON "collaborators"("email");
+-- Índice único parcial: garante e-mail único apenas entre colaboradores ativos,
+-- permitindo reaproveitar o e-mail de um colaborador soft-deletado (deleted_at preenchido).
+CREATE UNIQUE INDEX "collaborators_email_key" ON "collaborators"("email") WHERE "deleted_at" IS NULL;
