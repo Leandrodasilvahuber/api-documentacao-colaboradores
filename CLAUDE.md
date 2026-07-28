@@ -29,6 +29,7 @@ There is no lint command configured yet.
 All commits must follow Conventional Commits: `<type>: <description>` in Portuguese, description in lowercase, no period at the end.
 
 Types:
+
 - `feat:` nova funcionalidade — ex: `feat: adiciona login via Google`
 - `fix:` correção de bug — ex: `fix: corrige cálculo de frete grátis`
 - `docs:` mudanças na documentação — ex: `docs: atualiza README com instruções de deploy`

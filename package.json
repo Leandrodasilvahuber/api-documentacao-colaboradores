@@ -8,6 +8,10 @@
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
     "start": "node dist/index.js",
     "test": "jest --passWithNoTests",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "postinstall": "prisma generate",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev"
@@ -24,15 +28,21 @@
   },
   "homepage": "https://github.com/Leandrodasilvahuber/api-documentacao-colaboradores#readme",
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@types/express": "^5.0.6",
     "@types/jest": "^30.0.0",
     "@types/node": "^26.1.2",
     "@types/pg": "^8.20.0",
+    "eslint": "^10.8.0",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.8.0",
     "jest": "^30.4.2",
+    "prettier": "^3.9.6",
     "prisma": "^7.9.1",
     "ts-jest": "^29.4.12",
     "ts-node-dev": "^2.0.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.65.0"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.9.1",
