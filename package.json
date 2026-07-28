@@ -27,6 +27,9 @@
     "url": "https://github.com/Leandrodasilvahuber/api-documentacao-colaboradores/issues"
   },
   "homepage": "https://github.com/Leandrodasilvahuber/api-documentacao-colaboradores#readme",
+  "overrides": {
+    "brace-expansion": "^5.0.8"
+  },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/express": "^5.0.6",
