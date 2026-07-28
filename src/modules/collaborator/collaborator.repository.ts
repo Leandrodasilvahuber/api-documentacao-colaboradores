@@ -6,8 +6,12 @@ export const collaboratorRepository = {
     return prisma.collaborator.create({ data });
   },
 
-  findAll() {
-    return prisma.collaborator.findMany({ where: { deletedAt: null } });
+  findAll({ skip, take }: { skip: number; take: number }) {
+    return prisma.collaborator.findMany({ where: { deletedAt: null }, skip, take });
+  },
+
+  count() {
+    return prisma.collaborator.count({ where: { deletedAt: null } });
   },
 
   findById(id: string) {

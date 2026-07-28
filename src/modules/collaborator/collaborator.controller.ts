@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
+import { paginationSchema } from '../../shared/utils/pagination';
 import { collaboratorService } from './collaborator.service';
 import { createCollaboratorSchema, updateCollaboratorSchema } from './collaborator.schema';
 
@@ -13,10 +14,11 @@ export const collaboratorController = {
     }
   },
 
-  async findAll(_req: Request, res: Response, next: NextFunction) {
+  async findAll(req: Request, res: Response, next: NextFunction) {
     try {
-      const collaborators = await collaboratorService.findAll();
-      res.status(200).json(collaborators);
+      const pagination = paginationSchema.parse(req.query);
+      const result = await collaboratorService.findAll(pagination);
+      res.status(200).json(result);
     } catch (error) {
       next(error);
     }

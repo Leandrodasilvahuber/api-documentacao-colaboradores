@@ -1,4 +1,5 @@
 import { AppError } from '../../shared/errors/AppError';
+import { buildPaginationMeta, getPaginationParams, PaginationInput } from '../../shared/utils/pagination';
 import { collaboratorRepository } from './collaborator.repository';
 import { CreateCollaboratorInput, UpdateCollaboratorInput } from './collaborator.schema';
 
@@ -12,8 +13,14 @@ export const collaboratorService = {
     return collaboratorRepository.create(data);
   },
 
-  async findAll() {
-    return collaboratorRepository.findAll();
+  async findAll(pagination: PaginationInput) {
+    const { skip, take } = getPaginationParams(pagination);
+    const [data, total] = await Promise.all([
+      collaboratorRepository.findAll({ skip, take }),
+      collaboratorRepository.count(),
+    ]);
+
+    return { data, meta: buildPaginationMeta(total, pagination) };
   },
 
   async findById(id: string) {
