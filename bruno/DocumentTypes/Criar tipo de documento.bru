@@ -1,0 +1,39 @@
+meta {
+  name: Criar tipo de documento
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/document-types
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "RG",
+    "description": "Registro Geral"
+  }
+}
+
+vars:pre-request {
+  baseUrl: localhost:3000
+}
+
+script:post-response {
+  if (res.getStatus() === 201) {
+    const body = res.getBody();
+    bru.setVar('documentTypeId', body.id);
+  }
+}
+
+tests {
+  test("Status 201", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+}
