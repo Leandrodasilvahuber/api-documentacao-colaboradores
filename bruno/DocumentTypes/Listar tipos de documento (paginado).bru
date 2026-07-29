@@ -1,0 +1,32 @@
+meta {
+  name: Listar tipos de documento (paginado)
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/document-types?page=1&limit=10
+  body: none
+  auth: none
+}
+
+params:query {
+  page: 1
+  limit: 10
+}
+
+vars:pre-request {
+  baseUrl: localhost:3000
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Possui data e meta", function() {
+    const body = res.getBody();
+    expect(body).to.have.property('data');
+    expect(body).to.have.property('meta');
+  });
+}
