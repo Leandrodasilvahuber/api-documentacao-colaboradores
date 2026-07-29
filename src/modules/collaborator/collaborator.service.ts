@@ -1,5 +1,7 @@
+import { prisma } from '../../shared/database/prisma';
 import { AppError } from '../../shared/errors/AppError';
 import { buildPaginationMeta, getPaginationParams, PaginationInput } from '../../shared/utils/pagination';
+import { collaboratorDocumentRepository } from '../collaborator-document/collaborator-document.repository';
 import { collaboratorRepository } from './collaborator.repository';
 import { CreateCollaboratorInput, UpdateCollaboratorInput } from './collaborator.schema';
 
@@ -48,6 +50,9 @@ export const collaboratorService = {
   async delete(id: string) {
     await this.findById(id);
 
-    return collaboratorRepository.delete(id);
+    return prisma.$transaction(async (tx) => {
+      await collaboratorDocumentRepository.deleteByCollaboratorId(id, tx);
+      return collaboratorRepository.delete(id, tx);
+    });
   },
 };

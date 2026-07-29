@@ -1,5 +1,8 @@
 import { prisma } from '../../shared/database/prisma';
+import { Prisma } from '../../generated/prisma/client';
 import { CreateCollaboratorInput, UpdateCollaboratorInput } from './collaborator.schema';
+
+type Client = Prisma.TransactionClient | typeof prisma;
 
 export const collaboratorRepository = {
   create(data: CreateCollaboratorInput) {
@@ -29,8 +32,8 @@ export const collaboratorRepository = {
     return prisma.collaborator.update({ where: { id }, data: cleanData });
   },
 
-  delete(id: string) {
-    return prisma.collaborator.update({
+  delete(id: string, client: Client = prisma) {
+    return client.collaborator.update({
       where: { id },
       data: { deletedAt: new Date() },
     });

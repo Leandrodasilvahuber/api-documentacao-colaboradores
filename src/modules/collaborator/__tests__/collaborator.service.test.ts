@@ -1,10 +1,23 @@
 import { AppError } from '../../../shared/errors/AppError';
+import { prisma } from '../../../shared/database/prisma';
+import { collaboratorDocumentRepository } from '../../collaborator-document/collaborator-document.repository';
 import { collaboratorRepository } from '../collaborator.repository';
 import { collaboratorService } from '../collaborator.service';
 
 jest.mock('../collaborator.repository');
+jest.mock('../../collaborator-document/collaborator-document.repository');
+jest.mock('../../../shared/database/prisma', () => {
+  const mockPrisma: { $transaction: jest.Mock } = { $transaction: jest.fn() };
+  mockPrisma.$transaction.mockImplementation((callback: (tx: unknown) => unknown) =>
+    callback(mockPrisma),
+  );
+  return { prisma: mockPrisma };
+});
 
 const mockedRepository = collaboratorRepository as jest.Mocked<typeof collaboratorRepository>;
+const mockedCollaboratorDocumentRepository = collaboratorDocumentRepository as jest.Mocked<
+  typeof collaboratorDocumentRepository
+>;
 
 const collaborator = {
   id: 'collaborator-1',
@@ -137,13 +150,19 @@ describe('collaboratorService', () => {
   });
 
   describe('delete', () => {
-    it('deletes the collaborator when it exists', async () => {
+    it('deletes the collaborator and cascades soft delete to its document links within a transaction', async () => {
       mockedRepository.findById.mockResolvedValue(collaborator);
       mockedRepository.delete.mockResolvedValue({ ...collaborator, deletedAt: new Date() });
+      mockedCollaboratorDocumentRepository.deleteByCollaboratorId.mockResolvedValue({ count: 2 });
 
       await collaboratorService.delete(collaborator.id);
 
-      expect(mockedRepository.delete).toHaveBeenCalledWith(collaborator.id);
+      expect(prisma.$transaction).toHaveBeenCalled();
+      expect(mockedCollaboratorDocumentRepository.deleteByCollaboratorId).toHaveBeenCalledWith(
+        collaborator.id,
+        prisma,
+      );
+      expect(mockedRepository.delete).toHaveBeenCalledWith(collaborator.id, prisma);
     });
 
     it('throws when collaborator does not exist', async () => {
