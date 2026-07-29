@@ -1,0 +1,21 @@
+meta {
+  name: Deletar tipo de documento
+  type: http
+  seq: 9
+}
+
+delete {
+  url: {{baseUrl}}/document-types/{{documentTypeId}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  baseUrl: localhost:3000
+}
+
+tests {
+  test("Status 204", function() {
+    expect(res.getStatus()).to.equal(204);
+  });
+}
