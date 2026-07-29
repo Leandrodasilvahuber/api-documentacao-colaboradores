@@ -21,6 +21,8 @@ model Collaborator {
   updatedAt DateTime  @updatedAt @map("updated_at")
   deletedAt DateTime? @map("deleted_at")
 
+  documents CollaboratorDocumentType[]
+
   @@map("collaborators")
 }
 
@@ -32,5 +34,21 @@ model DocumentType {
   updatedAt   DateTime  @updatedAt @map("updated_at")
   deletedAt   DateTime? @map("deleted_at")
 
+  collaborators CollaboratorDocumentType[]
+
   @@map("document_types")
+}
+
+model CollaboratorDocumentType {
+  id             String    @id @default(uuid())
+  collaboratorId String    @map("collaborator_id")
+  documentTypeId String    @map("document_type_id")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  deletedAt      DateTime? @map("deleted_at")
+
+  collaborator   Collaborator @relation(fields: [collaboratorId], references: [id])
+  documentType   DocumentType @relation(fields: [documentTypeId], references: [id])
+
+  @@unique([collaboratorId, documentTypeId])
+  @@map("collaborator_document_types")
 }
