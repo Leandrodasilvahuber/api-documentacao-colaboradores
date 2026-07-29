@@ -1,0 +1,21 @@
+meta {
+  name: Deletar tipo de documento - não encontrado (404)
+  type: http
+  seq: 10
+}
+
+delete {
+  url: {{baseUrl}}/document-types/00000000-0000-0000-0000-000000000000
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  baseUrl: localhost:3000
+}
+
+tests {
+  test("Status 404", function() {
+    expect(res.getStatus()).to.equal(404);
+  });
+}
