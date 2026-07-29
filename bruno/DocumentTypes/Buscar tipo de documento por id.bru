@@ -1,0 +1,21 @@
+meta {
+  name: Buscar tipo de documento por id
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/document-types/{{documentTypeId}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  baseUrl: localhost:3000
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
