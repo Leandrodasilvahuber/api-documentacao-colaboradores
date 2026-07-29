@@ -1,0 +1,31 @@
+meta {
+  name: Atualizar tipo de documento
+  type: http
+  seq: 7
+}
+
+put {
+  url: {{baseUrl}}/document-types/{{documentTypeId}}
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "description": "Descrição atualizada"
+  }
+}
+
+vars:pre-request {
+  baseUrl: localhost:3000
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+}
