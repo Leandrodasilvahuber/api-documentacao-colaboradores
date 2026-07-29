@@ -1,0 +1,31 @@
+meta {
+  name: Vincular tipos de documento - payload inválido (400)
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrl}}/collaborators/{{collaboratorId}}/documents
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "documentTypeIds": []
+  }
+}
+
+vars:pre-request {
+  baseUrl: localhost:3000
+}
+
+tests {
+  test("Status 400", function() {
+    expect(res.getStatus()).to.equal(400);
+  });
+}

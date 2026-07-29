@@ -1,0 +1,30 @@
+meta {
+  name: Listar vínculos do colaborador
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{baseUrl}}/collaborators/{{collaboratorId}}/documents
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  baseUrl: localhost:3000
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Retorna apenas vinculos ativos com o tipo de documento incluso", function() {
+    const body = res.getBody();
+    expect(body).to.be.an('array');
+    body.forEach((link) => {
+      expect(link.deletedAt).to.equal(null);
+      expect(link.documentType).to.exist;
+    });
+  });
+}

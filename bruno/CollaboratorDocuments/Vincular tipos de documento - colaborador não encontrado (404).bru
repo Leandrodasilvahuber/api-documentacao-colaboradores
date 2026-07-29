@@ -1,0 +1,31 @@
+meta {
+  name: Vincular tipos de documento - colaborador não encontrado (404)
+  type: http
+  seq: 6
+}
+
+post {
+  url: {{baseUrl}}/collaborators/00000000-0000-0000-0000-000000000000/documents
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "documentTypeIds": ["{{documentTypeId}}"]
+  }
+}
+
+vars:pre-request {
+  baseUrl: localhost:3000
+}
+
+tests {
+  test("Status 404", function() {
+    expect(res.getStatus()).to.equal(404);
+  });
+}

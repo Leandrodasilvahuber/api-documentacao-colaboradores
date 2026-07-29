@@ -1,0 +1,21 @@
+meta {
+  name: Desvincular tipo de documento - colaborador não encontrado (404)
+  type: http
+  seq: 13
+}
+
+delete {
+  url: {{baseUrl}}/collaborators/00000000-0000-0000-0000-000000000000/documents/{{documentTypeId2}}
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  baseUrl: localhost:3000
+}
+
+tests {
+  test("Status 404", function() {
+    expect(res.getStatus()).to.equal(404);
+  });
+}

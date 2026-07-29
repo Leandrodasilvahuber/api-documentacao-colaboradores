@@ -1,0 +1,21 @@
+meta {
+  name: Listar vínculos - colaborador não encontrado (404)
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{baseUrl}}/collaborators/00000000-0000-0000-0000-000000000000/documents
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  baseUrl: localhost:3000
+}
+
+tests {
+  test("Status 404", function() {
+    expect(res.getStatus()).to.equal(404);
+  });
+}
