@@ -1,10 +1,23 @@
 import { AppError } from '../../../shared/errors/AppError';
+import { prisma } from '../../../shared/database/prisma';
+import { collaboratorDocumentRepository } from '../../collaborator-document/collaborator-document.repository';
 import { documentTypeRepository } from '../document-type.repository';
 import { documentTypeService } from '../document-type.service';
 
 jest.mock('../document-type.repository');
+jest.mock('../../collaborator-document/collaborator-document.repository');
+jest.mock('../../../shared/database/prisma', () => {
+  const mockPrisma: { $transaction: jest.Mock } = { $transaction: jest.fn() };
+  mockPrisma.$transaction.mockImplementation((callback: (tx: unknown) => unknown) =>
+    callback(mockPrisma),
+  );
+  return { prisma: mockPrisma };
+});
 
 const mockedRepository = documentTypeRepository as jest.Mocked<typeof documentTypeRepository>;
+const mockedCollaboratorDocumentRepository = collaboratorDocumentRepository as jest.Mocked<
+  typeof collaboratorDocumentRepository
+>;
 
 const documentType = {
   id: 'document-type-1',
@@ -137,13 +150,19 @@ describe('documentTypeService', () => {
   });
 
   describe('delete', () => {
-    it('deletes the document type when it exists', async () => {
+    it('deletes the document type and cascades soft delete to its links within a transaction', async () => {
       mockedRepository.findById.mockResolvedValue(documentType);
       mockedRepository.delete.mockResolvedValue({ ...documentType, deletedAt: new Date() });
+      mockedCollaboratorDocumentRepository.deleteByDocumentTypeId.mockResolvedValue({ count: 2 });
 
       await documentTypeService.delete(documentType.id);
 
-      expect(mockedRepository.delete).toHaveBeenCalledWith(documentType.id);
+      expect(prisma.$transaction).toHaveBeenCalled();
+      expect(mockedCollaboratorDocumentRepository.deleteByDocumentTypeId).toHaveBeenCalledWith(
+        documentType.id,
+        prisma,
+      );
+      expect(mockedRepository.delete).toHaveBeenCalledWith(documentType.id, prisma);
     });
 
     it('throws when document type does not exist', async () => {

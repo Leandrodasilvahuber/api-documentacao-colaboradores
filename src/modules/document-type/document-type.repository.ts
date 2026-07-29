@@ -1,5 +1,8 @@
 import { prisma } from '../../shared/database/prisma';
+import { Prisma } from '../../generated/prisma/client';
 import { CreateDocumentTypeInput, UpdateDocumentTypeInput } from './document-type.schema';
+
+type Client = Prisma.TransactionClient | typeof prisma;
 
 export const documentTypeRepository = {
   create(data: CreateDocumentTypeInput) {
@@ -31,8 +34,8 @@ export const documentTypeRepository = {
     return prisma.documentType.update({ where: { id }, data: cleanData });
   },
 
-  delete(id: string) {
-    return prisma.documentType.update({
+  delete(id: string, client: Client = prisma) {
+    return client.documentType.update({
       where: { id },
       data: { deletedAt: new Date() },
     });
