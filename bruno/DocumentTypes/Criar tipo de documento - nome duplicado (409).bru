@@ -1,0 +1,31 @@
+meta {
+  name: Criar tipo de documento - nome duplicado (409)
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/document-types
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "RG"
+  }
+}
+
+vars:pre-request {
+  baseUrl: localhost:3000
+}
+
+tests {
+  test("Status 409", function() {
+    expect(res.getStatus()).to.equal(409);
+  });
+}
