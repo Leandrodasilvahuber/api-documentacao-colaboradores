@@ -210,6 +210,17 @@ describe('submissionService', () => {
       ).rejects.toThrow(AppError);
     });
 
+    it('throws 404 when the link is soft deleted (blocks listing for a removed collaborator link)', async () => {
+      mockedCollaboratorDocumentRepository.findByCollaboratorAndDocumentType.mockResolvedValue(
+        deletedLink,
+      );
+
+      await expect(
+        submissionService.listVersions('collaborator-1', 'document-type-1'),
+      ).rejects.toMatchObject({ name: 'AppError', statusCode: 404 });
+      expect(mockedSubmissionRepository.findAllByCollaboratorDocumentTypeId).not.toHaveBeenCalled();
+    });
+
     it('returns an empty array when there are no submissions', async () => {
       mockedSubmissionRepository.findAllByCollaboratorDocumentTypeId.mockResolvedValue([]);
 

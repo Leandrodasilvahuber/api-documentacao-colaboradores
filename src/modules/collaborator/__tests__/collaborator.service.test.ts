@@ -228,5 +228,21 @@ describe('collaboratorService', () => {
       await expect(collaboratorService.delete('missing-id')).rejects.toThrow(AppError);
       expect(mockedRepository.delete).not.toHaveBeenCalled();
     });
+
+    it('throws when deleting an already-deleted collaborator (double delete is not idempotent)', async () => {
+      mockedRepository.findById.mockResolvedValueOnce(collaborator);
+      mockedRepository.delete.mockResolvedValue({ ...collaborator, deletedAt: new Date() });
+      mockedCollaboratorDocumentRepository.deleteByCollaboratorId.mockResolvedValue({ count: 0 });
+
+      await collaboratorService.delete(collaborator.id);
+
+      mockedRepository.findById.mockResolvedValueOnce(null);
+
+      await expect(collaboratorService.delete(collaborator.id)).rejects.toMatchObject({
+        name: 'AppError',
+        statusCode: 404,
+      });
+      expect(mockedRepository.delete).toHaveBeenCalledTimes(1);
+    });
   });
 });
