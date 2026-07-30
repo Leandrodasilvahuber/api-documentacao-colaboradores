@@ -1,13 +1,13 @@
-import { Prisma } from '../../../generated/prisma/client';
-import { AppError } from '../../../shared/errors/AppError';
-import { prisma } from '../../../shared/database/prisma';
-import { collaboratorDocumentRepository } from '../../collaborator-document/collaborator-document.repository';
-import { collaboratorRepository } from '../collaborator.repository';
-import { collaboratorService } from '../collaborator.service';
+import { Prisma } from "../../../generated/prisma/client";
+import { AppError } from "../../../shared/errors/AppError";
+import { prisma } from "../../../shared/database/prisma";
+import { collaboratorDocumentRepository } from "../../collaborator-document/collaborator-document.repository";
+import { collaboratorRepository } from "../collaborator.repository";
+import { collaboratorService } from "../collaborator.service";
 
-jest.mock('../collaborator.repository');
-jest.mock('../../collaborator-document/collaborator-document.repository');
-jest.mock('../../../shared/database/prisma', () => {
+jest.mock("../collaborator.repository");
+jest.mock("../../collaborator-document/collaborator-document.repository");
+jest.mock("../../../shared/database/prisma", () => {
   const mockPrisma: { $transaction: jest.Mock } = { $transaction: jest.fn() };
   mockPrisma.$transaction.mockImplementation((callback: (tx: unknown) => unknown) =>
     callback(mockPrisma),
@@ -21,21 +21,21 @@ const mockedCollaboratorDocumentRepository = collaboratorDocumentRepository as j
 >;
 
 const collaborator = {
-  id: 'collaborator-1',
-  name: 'John Doe',
-  email: 'john@example.com',
+  id: "collaborator-1",
+  name: "John Doe",
+  email: "john@example.com",
   createdAt: new Date(),
   updatedAt: new Date(),
   deletedAt: null,
 };
 
-describe('collaboratorService', () => {
+describe("collaboratorService", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  describe('create', () => {
-    it('creates a collaborator when email is not already in use', async () => {
+  describe("create", () => {
+    it("creates a collaborator when email is not already in use", async () => {
       mockedRepository.findByEmail.mockResolvedValue(null);
       mockedRepository.create.mockResolvedValue(collaborator);
 
@@ -52,7 +52,7 @@ describe('collaboratorService', () => {
       expect(result).toEqual(collaborator);
     });
 
-    it('throws when email is already in use', async () => {
+    it("throws when email is already in use", async () => {
       mockedRepository.findByEmail.mockResolvedValue(collaborator);
 
       await expect(
@@ -61,36 +61,36 @@ describe('collaboratorService', () => {
       expect(mockedRepository.create).not.toHaveBeenCalled();
     });
 
-    it('throws 409 when the unique constraint fails (concurrent create)', async () => {
+    it("throws 409 when the unique constraint fails (concurrent create)", async () => {
       mockedRepository.findByEmail.mockResolvedValue(null);
-      const uniqueError = new Prisma.PrismaClientKnownRequestError('Unique constraint failed', {
-        code: 'P2002',
-        clientVersion: '7.0.0',
+      const uniqueError = new Prisma.PrismaClientKnownRequestError("Unique constraint failed", {
+        code: "P2002",
+        clientVersion: "7.0.0",
       });
       mockedRepository.create.mockRejectedValue(uniqueError);
 
       await expect(
         collaboratorService.create({ name: collaborator.name, email: collaborator.email }),
       ).rejects.toMatchObject({
-        name: 'AppError',
+        name: "AppError",
         statusCode: 409,
-        message: 'Já existe um colaborador com este email',
+        message: "Já existe um colaborador com este email",
       });
     });
 
-    it('rethrows errors that are not the unique constraint violation', async () => {
+    it("rethrows errors that are not the unique constraint violation", async () => {
       mockedRepository.findByEmail.mockResolvedValue(null);
-      const otherError = new Error('database is unreachable');
+      const otherError = new Error("database is unreachable");
       mockedRepository.create.mockRejectedValue(otherError);
 
       await expect(
         collaboratorService.create({ name: collaborator.name, email: collaborator.email }),
-      ).rejects.toThrow('database is unreachable');
+      ).rejects.toThrow("database is unreachable");
     });
   });
 
-  describe('findAll', () => {
-    it('returns paginated data with meta', async () => {
+  describe("findAll", () => {
+    it("returns paginated data with meta", async () => {
       mockedRepository.findAll.mockResolvedValue([collaborator]);
       mockedRepository.count.mockResolvedValue(1);
 
@@ -103,7 +103,7 @@ describe('collaboratorService', () => {
       });
     });
 
-    it('computes skip based on page and limit', async () => {
+    it("computes skip based on page and limit", async () => {
       mockedRepository.findAll.mockResolvedValue([]);
       mockedRepository.count.mockResolvedValue(25);
 
@@ -114,8 +114,8 @@ describe('collaboratorService', () => {
     });
   });
 
-  describe('findById', () => {
-    it('returns the collaborator when found', async () => {
+  describe("findById", () => {
+    it("returns the collaborator when found", async () => {
       mockedRepository.findById.mockResolvedValue(collaborator);
 
       const result = await collaboratorService.findById(collaborator.id);
@@ -124,51 +124,53 @@ describe('collaboratorService', () => {
       expect(result).toEqual(collaborator);
     });
 
-    it('throws when not found', async () => {
+    it("throws when not found", async () => {
       mockedRepository.findById.mockResolvedValue(null);
 
-      await expect(collaboratorService.findById('missing-id')).rejects.toThrow(AppError);
+      await expect(collaboratorService.findById("missing-id")).rejects.toThrow(AppError);
     });
   });
 
-  describe('update', () => {
-    it('updates the collaborator when it exists and email is not taken', async () => {
+  describe("update", () => {
+    it("updates the collaborator when it exists and email is not taken", async () => {
       mockedRepository.findById.mockResolvedValue(collaborator);
       mockedRepository.findByEmail.mockResolvedValue(null);
-      const updated = { ...collaborator, name: 'Jane Doe' };
+      const updated = { ...collaborator, name: "Jane Doe" };
       mockedRepository.update.mockResolvedValue(updated);
 
-      const result = await collaboratorService.update(collaborator.id, { name: 'Jane Doe' });
+      const result = await collaboratorService.update(collaborator.id, { name: "Jane Doe" });
 
-      expect(mockedRepository.update).toHaveBeenCalledWith(collaborator.id, { name: 'Jane Doe' });
+      expect(mockedRepository.update).toHaveBeenCalledWith(collaborator.id, { name: "Jane Doe" });
       expect(result).toEqual(updated);
     });
 
-    it('throws when collaborator does not exist', async () => {
+    it("throws when collaborator does not exist", async () => {
       mockedRepository.findById.mockResolvedValue(null);
 
-      await expect(collaboratorService.update('missing-id', { name: 'Jane Doe' })).rejects.toThrow(
+      await expect(collaboratorService.update("missing-id", { name: "Jane Doe" })).rejects.toThrow(
         AppError,
       );
       expect(mockedRepository.update).not.toHaveBeenCalled();
     });
 
-    it('throws when new email belongs to another collaborator', async () => {
+    it("throws when new email belongs to another collaborator", async () => {
       mockedRepository.findById.mockResolvedValue(collaborator);
-      mockedRepository.findByEmail.mockResolvedValue({ ...collaborator, id: 'other-id' });
+      mockedRepository.findByEmail.mockResolvedValue({ ...collaborator, id: "other-id" });
 
       await expect(
-        collaboratorService.update(collaborator.id, { email: 'taken@example.com' }),
+        collaboratorService.update(collaborator.id, { email: "taken@example.com" }),
       ).rejects.toThrow(AppError);
       expect(mockedRepository.update).not.toHaveBeenCalled();
     });
 
-    it('allows keeping the same email', async () => {
+    it("allows keeping the same email", async () => {
       mockedRepository.findById.mockResolvedValue(collaborator);
       mockedRepository.findByEmail.mockResolvedValue(collaborator);
       mockedRepository.update.mockResolvedValue(collaborator);
 
-      const result = await collaboratorService.update(collaborator.id, { email: collaborator.email });
+      const result = await collaboratorService.update(collaborator.id, {
+        email: collaborator.email,
+      });
 
       expect(result).toEqual(collaborator);
       expect(mockedRepository.update).toHaveBeenCalledWith(collaborator.id, {
@@ -176,38 +178,38 @@ describe('collaboratorService', () => {
       });
     });
 
-    it('throws 409 when the unique constraint fails (concurrent update)', async () => {
+    it("throws 409 when the unique constraint fails (concurrent update)", async () => {
       mockedRepository.findById.mockResolvedValue(collaborator);
       mockedRepository.findByEmail.mockResolvedValue(null);
-      const uniqueError = new Prisma.PrismaClientKnownRequestError('Unique constraint failed', {
-        code: 'P2002',
-        clientVersion: '7.0.0',
+      const uniqueError = new Prisma.PrismaClientKnownRequestError("Unique constraint failed", {
+        code: "P2002",
+        clientVersion: "7.0.0",
       });
       mockedRepository.update.mockRejectedValue(uniqueError);
 
       await expect(
-        collaboratorService.update(collaborator.id, { email: 'taken@example.com' }),
+        collaboratorService.update(collaborator.id, { email: "taken@example.com" }),
       ).rejects.toMatchObject({
-        name: 'AppError',
+        name: "AppError",
         statusCode: 409,
-        message: 'Já existe um colaborador com este email',
+        message: "Já existe um colaborador com este email",
       });
     });
 
-    it('rethrows errors that are not the unique constraint violation on update', async () => {
+    it("rethrows errors that are not the unique constraint violation on update", async () => {
       mockedRepository.findById.mockResolvedValue(collaborator);
       mockedRepository.findByEmail.mockResolvedValue(null);
-      const otherError = new Error('database is unreachable');
+      const otherError = new Error("database is unreachable");
       mockedRepository.update.mockRejectedValue(otherError);
 
       await expect(
-        collaboratorService.update(collaborator.id, { email: 'taken@example.com' }),
-      ).rejects.toThrow('database is unreachable');
+        collaboratorService.update(collaborator.id, { email: "taken@example.com" }),
+      ).rejects.toThrow("database is unreachable");
     });
   });
 
-  describe('delete', () => {
-    it('deletes the collaborator and cascades soft delete to its document links within a transaction', async () => {
+  describe("delete", () => {
+    it("deletes the collaborator and cascades soft delete to its document links within a transaction", async () => {
       mockedRepository.findById.mockResolvedValue(collaborator);
       mockedRepository.delete.mockResolvedValue({ ...collaborator, deletedAt: new Date() });
       mockedCollaboratorDocumentRepository.deleteByCollaboratorId.mockResolvedValue({ count: 2 });
@@ -222,14 +224,14 @@ describe('collaboratorService', () => {
       expect(mockedRepository.delete).toHaveBeenCalledWith(collaborator.id, prisma);
     });
 
-    it('throws when collaborator does not exist', async () => {
+    it("throws when collaborator does not exist", async () => {
       mockedRepository.findById.mockResolvedValue(null);
 
-      await expect(collaboratorService.delete('missing-id')).rejects.toThrow(AppError);
+      await expect(collaboratorService.delete("missing-id")).rejects.toThrow(AppError);
       expect(mockedRepository.delete).not.toHaveBeenCalled();
     });
 
-    it('throws when deleting an already-deleted collaborator (double delete is not idempotent)', async () => {
+    it("throws when deleting an already-deleted collaborator (double delete is not idempotent)", async () => {
       mockedRepository.findById.mockResolvedValueOnce(collaborator);
       mockedRepository.delete.mockResolvedValue({ ...collaborator, deletedAt: new Date() });
       mockedCollaboratorDocumentRepository.deleteByCollaboratorId.mockResolvedValue({ count: 0 });
@@ -239,19 +241,19 @@ describe('collaboratorService', () => {
       mockedRepository.findById.mockResolvedValueOnce(null);
 
       await expect(collaboratorService.delete(collaborator.id)).rejects.toMatchObject({
-        name: 'AppError',
+        name: "AppError",
         statusCode: 404,
       });
       expect(mockedRepository.delete).toHaveBeenCalledTimes(1);
     });
 
-    it('não chama collaboratorRepository.delete quando a exclusão em cascata dos vínculos falha (rollback simulado)', async () => {
+    it("não chama collaboratorRepository.delete quando a exclusão em cascata dos vínculos falha (rollback simulado)", async () => {
       mockedRepository.findById.mockResolvedValue(collaborator);
       mockedCollaboratorDocumentRepository.deleteByCollaboratorId.mockRejectedValue(
-        new Error('falha simulada'),
+        new Error("falha simulada"),
       );
 
-      await expect(collaboratorService.delete(collaborator.id)).rejects.toThrow('falha simulada');
+      await expect(collaboratorService.delete(collaborator.id)).rejects.toThrow("falha simulada");
       expect(mockedRepository.delete).not.toHaveBeenCalled();
     });
   });

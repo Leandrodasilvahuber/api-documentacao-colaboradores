@@ -1,7 +1,7 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 export const createDocumentTypeSchema = z.object({
-  name: z.string().trim().min(1, 'Nome é obrigatório'),
+  name: z.string().trim().min(1, "Nome é obrigatório"),
   description: z.string().trim().min(1).nullish(),
 });
 

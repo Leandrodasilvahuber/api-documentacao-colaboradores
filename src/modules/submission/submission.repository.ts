@@ -1,5 +1,5 @@
-import { prisma } from '../../shared/database/prisma';
-import { Prisma } from '../../generated/prisma/client';
+import { prisma } from "../../shared/database/prisma";
+import { Prisma } from "../../generated/prisma/client";
 
 type Client = Prisma.TransactionClient | typeof prisma;
 
@@ -13,7 +13,7 @@ export const submissionRepository = {
   findLatestVersion(collaboratorDocumentTypeId: string) {
     return prisma.documentSubmission.findFirst({
       where: { collaboratorDocumentTypeId },
-      orderBy: { version: 'desc' },
+      orderBy: { version: "desc" },
     });
   },
 
@@ -41,7 +41,7 @@ export const submissionRepository = {
   findAllByCollaboratorDocumentTypeId(collaboratorDocumentTypeId: string) {
     return prisma.documentSubmission.findMany({
       where: { collaboratorDocumentTypeId },
-      orderBy: { version: 'desc' },
+      orderBy: { version: "desc" },
     });
   },
 
@@ -54,7 +54,7 @@ export const submissionRepository = {
       },
       skip,
       take,
-      orderBy: { createdAt: 'asc' },
+      orderBy: { createdAt: "asc" },
     });
   },
 
@@ -84,7 +84,7 @@ function buildPendingWhere({
       deletedAt: null,
       ...(collaboratorId && { id: collaboratorId }),
       ...(collaboratorName && {
-        name: { contains: collaboratorName, mode: 'insensitive' },
+        name: { contains: collaboratorName, mode: "insensitive" },
       }),
     },
     documentType: {

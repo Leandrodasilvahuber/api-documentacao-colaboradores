@@ -1,6 +1,6 @@
-import { prisma } from '../../shared/database/prisma';
-import { Prisma } from '../../generated/prisma/client';
-import { CreateCollaboratorInput, UpdateCollaboratorInput } from './collaborator.schema';
+import { prisma } from "../../shared/database/prisma";
+import { Prisma } from "../../generated/prisma/client";
+import { CreateCollaboratorInput, UpdateCollaboratorInput } from "./collaborator.schema";
 
 type Client = Prisma.TransactionClient | typeof prisma;
 

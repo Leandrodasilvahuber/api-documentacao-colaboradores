@@ -20,13 +20,13 @@ O domínio da API gira em torno de quatro entidades:
 
 Módulos da aplicação (`src/modules`):
 
-| Módulo | Rotas base | Responsabilidade |
-| --- | --- | --- |
-| `collaborator` | `/collaborators` | CRUD de colaboradores, com soft delete e listagem paginada |
-| `document-type` | `/document-types` | CRUD de tipos de documento, com soft delete e listagem paginada |
-| `collaborator-document` | `/collaborators/:collaboratorId/documents` | Vincula/desvincula tipos de documento a um colaborador |
-| `submission` | `/collaborators/:collaboratorId/documents/:documentTypeId/submissions`, `/documents/pending` | Envio de novas versões de documento, histórico e listagem paginada de pendências |
-| `statistics` | `/statistics` | Percentual de completude, ranking de pendências por tipo de documento e envios recentes |
+| Módulo                  | Rotas base                                                                                   | Responsabilidade                                                                        |
+| ----------------------- | -------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `collaborator`          | `/collaborators`                                                                             | CRUD de colaboradores, com soft delete e listagem paginada                              |
+| `document-type`         | `/document-types`                                                                            | CRUD de tipos de documento, com soft delete e listagem paginada                         |
+| `collaborator-document` | `/collaborators/:collaboratorId/documents`                                                   | Vincula/desvincula tipos de documento a um colaborador                                  |
+| `submission`            | `/collaborators/:collaboratorId/documents/:documentTypeId/submissions`, `/documents/pending` | Envio de novas versões de documento, histórico e listagem paginada de pendências        |
+| `statistics`            | `/statistics`                                                                                | Percentual de completude, ranking de pendências por tipo de documento e envios recentes |
 
 Documentação interativa (Swagger/OpenAPI) fica disponível em `/docs` quando a API está rodando,
 gerada a partir dos comentários `@openapi` em cada arquivo `*.routes.ts` (ver `src/config/swagger.ts`).

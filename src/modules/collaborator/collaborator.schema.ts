@@ -1,8 +1,8 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 export const createCollaboratorSchema = z.object({
-  name: z.string().trim().min(1, 'Nome é obrigatório'),
-  email: z.email('Email inválido'),
+  name: z.string().trim().min(1, "Nome é obrigatório"),
+  email: z.email("Email inválido"),
 });
 
 export const updateCollaboratorSchema = createCollaboratorSchema.partial();

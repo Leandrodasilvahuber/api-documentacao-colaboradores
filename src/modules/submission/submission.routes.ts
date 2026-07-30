@@ -1,5 +1,5 @@
-import { Router } from 'express';
-import { submissionController } from './submission.controller';
+import { Router } from "express";
+import { submissionController } from "./submission.controller";
 
 const submissionRoutes = Router({ mergeParams: true });
 
@@ -60,7 +60,7 @@ const submissionRoutes = Router({ mergeParams: true });
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-submissionRoutes.post('/', submissionController.submit);
+submissionRoutes.post("/", submissionController.submit);
 
 /**
  * @openapi
@@ -97,7 +97,7 @@ submissionRoutes.post('/', submissionController.submit);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-submissionRoutes.get('/', submissionController.listVersions);
+submissionRoutes.get("/", submissionController.listVersions);
 
 const pendingDocumentRoutes = Router();
 
@@ -166,6 +166,6 @@ const pendingDocumentRoutes = Router();
  *             schema:
  *               $ref: '#/components/schemas/ValidationError'
  */
-pendingDocumentRoutes.get('/pending', submissionController.listPending);
+pendingDocumentRoutes.get("/pending", submissionController.listPending);
 
 export { submissionRoutes, pendingDocumentRoutes };

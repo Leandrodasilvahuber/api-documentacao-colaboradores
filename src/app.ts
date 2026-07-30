@@ -42,10 +42,7 @@ app.get("/", (_req, res) => {
 app.use("/collaborators", collaboratorRoutes);
 app.use("/collaborators/:collaboratorId/documents", collaboratorDocumentRoutes);
 app.use("/document-types", documentTypeRoutes);
-app.use(
-  "/collaborators/:collaboratorId/documents/:documentTypeId/submissions",
-  submissionRoutes,
-);
+app.use("/collaborators/:collaboratorId/documents/:documentTypeId/submissions", submissionRoutes);
 app.use("/documents", pendingDocumentRoutes);
 app.use("/statistics", statisticsRoutes);
 

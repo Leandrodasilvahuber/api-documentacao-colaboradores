@@ -15,7 +15,10 @@ const swaggerSpec = swaggerJSDoc({
       { name: "Health", description: "Status da API" },
       { name: "Collaborators", description: "Cadastro de colaboradores" },
       { name: "DocumentTypes", description: "Tipos de documento" },
-      { name: "CollaboratorDocuments", description: "Vínculo entre colaboradores e tipos de documento" },
+      {
+        name: "CollaboratorDocuments",
+        description: "Vínculo entre colaboradores e tipos de documento",
+      },
       { name: "Submissions", description: "Envio e histórico de versões de documentos" },
       { name: "Pending", description: "Documentos pendentes de envio" },
       { name: "Statistics", description: "Estatísticas de conclusão e pendências" },

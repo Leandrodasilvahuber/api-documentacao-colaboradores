@@ -1,4 +1,4 @@
-import { prisma } from '../../shared/database/prisma';
+import { prisma } from "../../shared/database/prisma";
 
 const activeLinkWhere = {
   deletedAt: null,
@@ -20,12 +20,12 @@ export const statisticsRepository = {
   async byDocumentType() {
     const [totals, pending] = await Promise.all([
       prisma.collaboratorDocumentType.groupBy({
-        by: ['documentTypeId'],
+        by: ["documentTypeId"],
         where: activeLinkWhere,
         _count: { _all: true },
       }),
       prisma.collaboratorDocumentType.groupBy({
-        by: ['documentTypeId'],
+        by: ["documentTypeId"],
         where: { ...activeLinkWhere, submissions: { none: { isCurrentVersion: true } } },
         _count: { _all: true },
       }),
@@ -57,7 +57,7 @@ export const statisticsRepository = {
         isCurrentVersion: true,
         collaboratorDocumentType: activeLinkWhere,
       },
-      orderBy: { submittedAt: 'desc' },
+      orderBy: { submittedAt: "desc" },
       take: limit,
       include: {
         collaboratorDocumentType: {

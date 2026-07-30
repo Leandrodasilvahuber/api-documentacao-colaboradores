@@ -1,14 +1,14 @@
-import { prisma } from '../../shared/database/prisma';
-import { AppError } from '../../shared/errors/AppError';
-import { collaboratorRepository } from '../collaborator/collaborator.repository';
-import { documentTypeRepository } from '../document-type/document-type.repository';
-import { collaboratorDocumentRepository } from './collaborator-document.repository';
+import { prisma } from "../../shared/database/prisma";
+import { AppError } from "../../shared/errors/AppError";
+import { collaboratorRepository } from "../collaborator/collaborator.repository";
+import { documentTypeRepository } from "../document-type/document-type.repository";
+import { collaboratorDocumentRepository } from "./collaborator-document.repository";
 
 export const collaboratorDocumentService = {
   async listByCollaborator(collaboratorId: string) {
     const collaborator = await collaboratorRepository.findById(collaboratorId);
     if (!collaborator) {
-      throw new AppError('Colaborador não encontrado', 404);
+      throw new AppError("Colaborador não encontrado", 404);
     }
 
     return collaboratorDocumentRepository.findByCollaboratorId(collaboratorId);
@@ -17,7 +17,7 @@ export const collaboratorDocumentService = {
   async linkDocuments(collaboratorId: string, documentTypeIds: string[]) {
     const collaborator = await collaboratorRepository.findById(collaboratorId);
     if (!collaborator) {
-      throw new AppError('Colaborador não encontrado', 404);
+      throw new AppError("Colaborador não encontrado", 404);
     }
 
     for (const documentTypeId of documentTypeIds) {
@@ -62,7 +62,7 @@ export const collaboratorDocumentService = {
   async unlinkDocument(collaboratorId: string, documentTypeId: string) {
     const collaborator = await collaboratorRepository.findById(collaboratorId);
     if (!collaborator) {
-      throw new AppError('Colaborador não encontrado', 404);
+      throw new AppError("Colaborador não encontrado", 404);
     }
 
     const link = await collaboratorDocumentRepository.findByCollaboratorAndDocumentType(
@@ -71,7 +71,7 @@ export const collaboratorDocumentService = {
     );
 
     if (!link || link.deletedAt !== null) {
-      throw new AppError('Tipo de documento não está vinculado a este colaborador', 404);
+      throw new AppError("Tipo de documento não está vinculado a este colaborador", 404);
     }
 
     return collaboratorDocumentRepository.delete(link.id);

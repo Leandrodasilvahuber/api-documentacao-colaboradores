@@ -1,6 +1,6 @@
-import { NextFunction, Request, Response } from 'express';
-import { collaboratorDocumentService } from './collaborator-document.service';
-import { linkDocumentsSchema } from './collaborator-document.schema';
+import { NextFunction, Request, Response } from "express";
+import { collaboratorDocumentService } from "./collaborator-document.service";
+import { linkDocumentsSchema } from "./collaborator-document.schema";
 
 export const collaboratorDocumentController = {
   async list(req: Request, res: Response, next: NextFunction) {

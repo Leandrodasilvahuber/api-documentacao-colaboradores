@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 export const paginationSchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
@@ -23,7 +23,10 @@ export function getPaginationParams({ page, limit }: PaginationInput) {
   return { skip: (page - 1) * limit, take: limit };
 }
 
-export function buildPaginationMeta(total: number, { page, limit }: PaginationInput): PaginationMeta {
+export function buildPaginationMeta(
+  total: number,
+  { page, limit }: PaginationInput,
+): PaginationMeta {
   return {
     total,
     page,

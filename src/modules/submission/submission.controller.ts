@@ -1,10 +1,10 @@
-import { NextFunction, Request, Response } from 'express';
-import { submissionService } from './submission.service';
+import { NextFunction, Request, Response } from "express";
+import { submissionService } from "./submission.service";
 import {
   createSubmissionSchema,
   pendingQuerySchema,
   submissionParamsSchema,
-} from './submission.schema';
+} from "./submission.schema";
 
 export const submissionController = {
   async submit(req: Request, res: Response, next: NextFunction) {

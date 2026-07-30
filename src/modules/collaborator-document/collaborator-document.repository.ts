@@ -1,5 +1,5 @@
-import { prisma } from '../../shared/database/prisma';
-import { Prisma } from '../../generated/prisma/client';
+import { prisma } from "../../shared/database/prisma";
+import { Prisma } from "../../generated/prisma/client";
 
 type Client = Prisma.TransactionClient | typeof prisma;
 
@@ -8,7 +8,7 @@ export const collaboratorDocumentRepository = {
     return prisma.collaboratorDocumentType.findMany({
       where: { collaboratorId, deletedAt: null },
       include: { documentType: true },
-      orderBy: { createdAt: 'asc' },
+      orderBy: { createdAt: "asc" },
     });
   },
 
@@ -19,9 +19,7 @@ export const collaboratorDocumentRepository = {
   },
 
   createMany(data: { collaboratorId: string; documentTypeId: string }[], client: Client = prisma) {
-    return Promise.all(
-      data.map((item) => client.collaboratorDocumentType.create({ data: item })),
-    );
+    return Promise.all(data.map((item) => client.collaboratorDocumentType.create({ data: item })));
   },
 
   reactivate(id: string, client: Client = prisma) {

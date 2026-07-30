@@ -1,5 +1,5 @@
-import { Router } from 'express';
-import { documentTypeController } from './document-type.controller';
+import { Router } from "express";
+import { documentTypeController } from "./document-type.controller";
 
 const documentTypeRoutes = Router();
 
@@ -44,7 +44,7 @@ const documentTypeRoutes = Router();
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-documentTypeRoutes.post('/', documentTypeController.create);
+documentTypeRoutes.post("/", documentTypeController.create);
 
 /**
  * @openapi
@@ -81,7 +81,7 @@ documentTypeRoutes.post('/', documentTypeController.create);
  *                 meta:
  *                   $ref: '#/components/schemas/PaginationMeta'
  */
-documentTypeRoutes.get('/', documentTypeController.findAll);
+documentTypeRoutes.get("/", documentTypeController.findAll);
 
 /**
  * @openapi
@@ -110,7 +110,7 @@ documentTypeRoutes.get('/', documentTypeController.findAll);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-documentTypeRoutes.get('/:id', documentTypeController.findById);
+documentTypeRoutes.get("/:id", documentTypeController.findById);
 
 /**
  * @openapi
@@ -165,7 +165,7 @@ documentTypeRoutes.get('/:id', documentTypeController.findById);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-documentTypeRoutes.put('/:id', documentTypeController.update);
+documentTypeRoutes.put("/:id", documentTypeController.update);
 
 /**
  * @openapi
@@ -190,6 +190,6 @@ documentTypeRoutes.put('/:id', documentTypeController.update);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-documentTypeRoutes.delete('/:id', documentTypeController.delete);
+documentTypeRoutes.delete("/:id", documentTypeController.delete);
 
 export { documentTypeRoutes };

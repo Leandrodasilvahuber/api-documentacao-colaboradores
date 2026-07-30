@@ -1,5 +1,5 @@
-import { Router } from 'express';
-import { statisticsController } from './statistics.controller';
+import { Router } from "express";
+import { statisticsController } from "./statistics.controller";
 
 const statisticsRoutes = Router();
 
@@ -30,7 +30,7 @@ const statisticsRoutes = Router();
  *                   type: number
  *                   example: 70.00
  */
-statisticsRoutes.get('/completion', statisticsController.completion);
+statisticsRoutes.get("/completion", statisticsController.completion);
 
 /**
  * @openapi
@@ -66,7 +66,7 @@ statisticsRoutes.get('/completion', statisticsController.completion);
  *                     type: integer
  *                     example: 8
  */
-statisticsRoutes.get('/pending-ranking', statisticsController.pendingRanking);
+statisticsRoutes.get("/pending-ranking", statisticsController.pendingRanking);
 
 /**
  * @openapi
@@ -122,6 +122,6 @@ statisticsRoutes.get('/pending-ranking', statisticsController.pendingRanking);
  *             schema:
  *               $ref: '#/components/schemas/ValidationError'
  */
-statisticsRoutes.get('/recent-submissions', statisticsController.recentSubmissions);
+statisticsRoutes.get("/recent-submissions", statisticsController.recentSubmissions);
 
 export { statisticsRoutes };

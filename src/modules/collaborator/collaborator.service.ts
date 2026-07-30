@@ -1,27 +1,31 @@
-import { prisma } from '../../shared/database/prisma';
-import { Prisma } from '../../generated/prisma/client';
-import { AppError } from '../../shared/errors/AppError';
-import { buildPaginationMeta, getPaginationParams, PaginationInput } from '../../shared/utils/pagination';
-import { collaboratorDocumentRepository } from '../collaborator-document/collaborator-document.repository';
-import { collaboratorRepository } from './collaborator.repository';
-import { CreateCollaboratorInput, UpdateCollaboratorInput } from './collaborator.schema';
+import { prisma } from "../../shared/database/prisma";
+import { Prisma } from "../../generated/prisma/client";
+import { AppError } from "../../shared/errors/AppError";
+import {
+  buildPaginationMeta,
+  getPaginationParams,
+  PaginationInput,
+} from "../../shared/utils/pagination";
+import { collaboratorDocumentRepository } from "../collaborator-document/collaborator-document.repository";
+import { collaboratorRepository } from "./collaborator.repository";
+import { CreateCollaboratorInput, UpdateCollaboratorInput } from "./collaborator.schema";
 
 function isDuplicateEmailError(error: unknown) {
-  return error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002';
+  return error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002";
 }
 
 export const collaboratorService = {
   async create(data: CreateCollaboratorInput) {
     const existing = await collaboratorRepository.findByEmail(data.email);
     if (existing) {
-      throw new AppError('Já existe um colaborador com este email', 409);
+      throw new AppError("Já existe um colaborador com este email", 409);
     }
 
     try {
       return await collaboratorRepository.create(data);
     } catch (error) {
       if (isDuplicateEmailError(error)) {
-        throw new AppError('Já existe um colaborador com este email', 409);
+        throw new AppError("Já existe um colaborador com este email", 409);
       }
       throw error;
     }
@@ -40,7 +44,7 @@ export const collaboratorService = {
   async findById(id: string) {
     const collaborator = await collaboratorRepository.findById(id);
     if (!collaborator) {
-      throw new AppError('Colaborador não encontrado', 404);
+      throw new AppError("Colaborador não encontrado", 404);
     }
 
     return collaborator;
@@ -52,7 +56,7 @@ export const collaboratorService = {
     if (data.email) {
       const existing = await collaboratorRepository.findByEmail(data.email);
       if (existing && existing.id !== id) {
-        throw new AppError('Já existe um colaborador com este email', 409);
+        throw new AppError("Já existe um colaborador com este email", 409);
       }
     }
 
@@ -60,7 +64,7 @@ export const collaboratorService = {
       return await collaboratorRepository.update(id, data);
     } catch (error) {
       if (isDuplicateEmailError(error)) {
-        throw new AppError('Já existe um colaborador com este email', 409);
+        throw new AppError("Já existe um colaborador com este email", 409);
       }
       throw error;
     }

@@ -1,13 +1,13 @@
-import { Prisma } from '../../../generated/prisma/client';
-import { AppError } from '../../../shared/errors/AppError';
-import { prisma } from '../../../shared/database/prisma';
-import { collaboratorDocumentRepository } from '../../collaborator-document/collaborator-document.repository';
-import { documentTypeRepository } from '../document-type.repository';
-import { documentTypeService } from '../document-type.service';
+import { Prisma } from "../../../generated/prisma/client";
+import { AppError } from "../../../shared/errors/AppError";
+import { prisma } from "../../../shared/database/prisma";
+import { collaboratorDocumentRepository } from "../../collaborator-document/collaborator-document.repository";
+import { documentTypeRepository } from "../document-type.repository";
+import { documentTypeService } from "../document-type.service";
 
-jest.mock('../document-type.repository');
-jest.mock('../../collaborator-document/collaborator-document.repository');
-jest.mock('../../../shared/database/prisma', () => {
+jest.mock("../document-type.repository");
+jest.mock("../../collaborator-document/collaborator-document.repository");
+jest.mock("../../../shared/database/prisma", () => {
   const mockPrisma: { $transaction: jest.Mock } = { $transaction: jest.fn() };
   mockPrisma.$transaction.mockImplementation((callback: (tx: unknown) => unknown) =>
     callback(mockPrisma),
@@ -21,21 +21,21 @@ const mockedCollaboratorDocumentRepository = collaboratorDocumentRepository as j
 >;
 
 const documentType = {
-  id: 'document-type-1',
-  name: 'RG',
-  description: 'Registro geral',
+  id: "document-type-1",
+  name: "RG",
+  description: "Registro geral",
   createdAt: new Date(),
   updatedAt: new Date(),
   deletedAt: null,
 };
 
-describe('documentTypeService', () => {
+describe("documentTypeService", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  describe('create', () => {
-    it('creates a document type when name is not already in use', async () => {
+  describe("create", () => {
+    it("creates a document type when name is not already in use", async () => {
       mockedRepository.findByName.mockResolvedValue(null);
       mockedRepository.create.mockResolvedValue(documentType);
 
@@ -52,45 +52,43 @@ describe('documentTypeService', () => {
       expect(result).toEqual(documentType);
     });
 
-    it('throws when name is already in use', async () => {
+    it("throws when name is already in use", async () => {
       mockedRepository.findByName.mockResolvedValue(documentType);
 
-      await expect(
-        documentTypeService.create({ name: documentType.name }),
-      ).rejects.toThrow(AppError);
+      await expect(documentTypeService.create({ name: documentType.name })).rejects.toThrow(
+        AppError,
+      );
       expect(mockedRepository.create).not.toHaveBeenCalled();
     });
 
-    it('throws 409 when the unique constraint fails (concurrent create)', async () => {
+    it("throws 409 when the unique constraint fails (concurrent create)", async () => {
       mockedRepository.findByName.mockResolvedValue(null);
-      const uniqueError = new Prisma.PrismaClientKnownRequestError('Unique constraint failed', {
-        code: 'P2002',
-        clientVersion: '7.0.0',
+      const uniqueError = new Prisma.PrismaClientKnownRequestError("Unique constraint failed", {
+        code: "P2002",
+        clientVersion: "7.0.0",
       });
       mockedRepository.create.mockRejectedValue(uniqueError);
 
-      await expect(
-        documentTypeService.create({ name: documentType.name }),
-      ).rejects.toMatchObject({
-        name: 'AppError',
+      await expect(documentTypeService.create({ name: documentType.name })).rejects.toMatchObject({
+        name: "AppError",
         statusCode: 409,
-        message: 'Já existe um tipo de documento com este nome',
+        message: "Já existe um tipo de documento com este nome",
       });
     });
 
-    it('rethrows errors that are not the unique constraint violation', async () => {
+    it("rethrows errors that are not the unique constraint violation", async () => {
       mockedRepository.findByName.mockResolvedValue(null);
-      const otherError = new Error('database is unreachable');
+      const otherError = new Error("database is unreachable");
       mockedRepository.create.mockRejectedValue(otherError);
 
-      await expect(
-        documentTypeService.create({ name: documentType.name }),
-      ).rejects.toThrow('database is unreachable');
+      await expect(documentTypeService.create({ name: documentType.name })).rejects.toThrow(
+        "database is unreachable",
+      );
     });
   });
 
-  describe('findAll', () => {
-    it('returns paginated data with meta', async () => {
+  describe("findAll", () => {
+    it("returns paginated data with meta", async () => {
       mockedRepository.findAll.mockResolvedValue([documentType]);
       mockedRepository.count.mockResolvedValue(1);
 
@@ -103,7 +101,7 @@ describe('documentTypeService', () => {
       });
     });
 
-    it('computes skip based on page and limit', async () => {
+    it("computes skip based on page and limit", async () => {
       mockedRepository.findAll.mockResolvedValue([]);
       mockedRepository.count.mockResolvedValue(25);
 
@@ -114,8 +112,8 @@ describe('documentTypeService', () => {
     });
   });
 
-  describe('findById', () => {
-    it('returns the document type when found', async () => {
+  describe("findById", () => {
+    it("returns the document type when found", async () => {
       mockedRepository.findById.mockResolvedValue(documentType);
 
       const result = await documentTypeService.findById(documentType.id);
@@ -124,46 +122,46 @@ describe('documentTypeService', () => {
       expect(result).toEqual(documentType);
     });
 
-    it('throws when not found', async () => {
+    it("throws when not found", async () => {
       mockedRepository.findById.mockResolvedValue(null);
 
-      await expect(documentTypeService.findById('missing-id')).rejects.toThrow(AppError);
+      await expect(documentTypeService.findById("missing-id")).rejects.toThrow(AppError);
     });
   });
 
-  describe('update', () => {
-    it('updates the document type when it exists and name is not taken', async () => {
+  describe("update", () => {
+    it("updates the document type when it exists and name is not taken", async () => {
       mockedRepository.findById.mockResolvedValue(documentType);
       mockedRepository.findByName.mockResolvedValue(null);
-      const updated = { ...documentType, name: 'CNH' };
+      const updated = { ...documentType, name: "CNH" };
       mockedRepository.update.mockResolvedValue(updated);
 
-      const result = await documentTypeService.update(documentType.id, { name: 'CNH' });
+      const result = await documentTypeService.update(documentType.id, { name: "CNH" });
 
-      expect(mockedRepository.update).toHaveBeenCalledWith(documentType.id, { name: 'CNH' });
+      expect(mockedRepository.update).toHaveBeenCalledWith(documentType.id, { name: "CNH" });
       expect(result).toEqual(updated);
     });
 
-    it('throws when document type does not exist', async () => {
+    it("throws when document type does not exist", async () => {
       mockedRepository.findById.mockResolvedValue(null);
 
-      await expect(documentTypeService.update('missing-id', { name: 'CNH' })).rejects.toThrow(
+      await expect(documentTypeService.update("missing-id", { name: "CNH" })).rejects.toThrow(
         AppError,
       );
       expect(mockedRepository.update).not.toHaveBeenCalled();
     });
 
-    it('throws when new name belongs to another document type', async () => {
+    it("throws when new name belongs to another document type", async () => {
       mockedRepository.findById.mockResolvedValue(documentType);
-      mockedRepository.findByName.mockResolvedValue({ ...documentType, id: 'other-id' });
+      mockedRepository.findByName.mockResolvedValue({ ...documentType, id: "other-id" });
 
-      await expect(
-        documentTypeService.update(documentType.id, { name: 'CNH' }),
-      ).rejects.toThrow(AppError);
+      await expect(documentTypeService.update(documentType.id, { name: "CNH" })).rejects.toThrow(
+        AppError,
+      );
       expect(mockedRepository.update).not.toHaveBeenCalled();
     });
 
-    it('allows keeping the same name', async () => {
+    it("allows keeping the same name", async () => {
       mockedRepository.findById.mockResolvedValue(documentType);
       mockedRepository.findByName.mockResolvedValue(documentType);
       mockedRepository.update.mockResolvedValue(documentType);
@@ -176,38 +174,38 @@ describe('documentTypeService', () => {
       });
     });
 
-    it('throws 409 when the unique constraint fails (concurrent update)', async () => {
+    it("throws 409 when the unique constraint fails (concurrent update)", async () => {
       mockedRepository.findById.mockResolvedValue(documentType);
       mockedRepository.findByName.mockResolvedValue(null);
-      const uniqueError = new Prisma.PrismaClientKnownRequestError('Unique constraint failed', {
-        code: 'P2002',
-        clientVersion: '7.0.0',
+      const uniqueError = new Prisma.PrismaClientKnownRequestError("Unique constraint failed", {
+        code: "P2002",
+        clientVersion: "7.0.0",
       });
       mockedRepository.update.mockRejectedValue(uniqueError);
 
       await expect(
-        documentTypeService.update(documentType.id, { name: 'CNH' }),
+        documentTypeService.update(documentType.id, { name: "CNH" }),
       ).rejects.toMatchObject({
-        name: 'AppError',
+        name: "AppError",
         statusCode: 409,
-        message: 'Já existe um tipo de documento com este nome',
+        message: "Já existe um tipo de documento com este nome",
       });
     });
 
-    it('rethrows errors that are not the unique constraint violation on update', async () => {
+    it("rethrows errors that are not the unique constraint violation on update", async () => {
       mockedRepository.findById.mockResolvedValue(documentType);
       mockedRepository.findByName.mockResolvedValue(null);
-      const otherError = new Error('database is unreachable');
+      const otherError = new Error("database is unreachable");
       mockedRepository.update.mockRejectedValue(otherError);
 
-      await expect(
-        documentTypeService.update(documentType.id, { name: 'CNH' }),
-      ).rejects.toThrow('database is unreachable');
+      await expect(documentTypeService.update(documentType.id, { name: "CNH" })).rejects.toThrow(
+        "database is unreachable",
+      );
     });
   });
 
-  describe('delete', () => {
-    it('deletes the document type and cascades soft delete to its links within a transaction', async () => {
+  describe("delete", () => {
+    it("deletes the document type and cascades soft delete to its links within a transaction", async () => {
       mockedRepository.findById.mockResolvedValue(documentType);
       mockedRepository.delete.mockResolvedValue({ ...documentType, deletedAt: new Date() });
       mockedCollaboratorDocumentRepository.deleteByDocumentTypeId.mockResolvedValue({ count: 2 });
@@ -222,10 +220,10 @@ describe('documentTypeService', () => {
       expect(mockedRepository.delete).toHaveBeenCalledWith(documentType.id, prisma);
     });
 
-    it('throws when document type does not exist', async () => {
+    it("throws when document type does not exist", async () => {
       mockedRepository.findById.mockResolvedValue(null);
 
-      await expect(documentTypeService.delete('missing-id')).rejects.toThrow(AppError);
+      await expect(documentTypeService.delete("missing-id")).rejects.toThrow(AppError);
       expect(mockedRepository.delete).not.toHaveBeenCalled();
     });
   });

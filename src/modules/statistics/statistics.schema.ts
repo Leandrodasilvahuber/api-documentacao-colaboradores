@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 export const recentSubmissionsQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(10),

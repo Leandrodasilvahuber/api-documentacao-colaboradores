@@ -1,5 +1,5 @@
-import { Router } from 'express';
-import { collaboratorController } from './collaborator.controller';
+import { Router } from "express";
+import { collaboratorController } from "./collaborator.controller";
 
 const collaboratorRoutes = Router();
 
@@ -44,7 +44,7 @@ const collaboratorRoutes = Router();
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-collaboratorRoutes.post('/', collaboratorController.create);
+collaboratorRoutes.post("/", collaboratorController.create);
 
 /**
  * @openapi
@@ -81,7 +81,7 @@ collaboratorRoutes.post('/', collaboratorController.create);
  *                 meta:
  *                   $ref: '#/components/schemas/PaginationMeta'
  */
-collaboratorRoutes.get('/', collaboratorController.findAll);
+collaboratorRoutes.get("/", collaboratorController.findAll);
 
 /**
  * @openapi
@@ -110,7 +110,7 @@ collaboratorRoutes.get('/', collaboratorController.findAll);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-collaboratorRoutes.get('/:id', collaboratorController.findById);
+collaboratorRoutes.get("/:id", collaboratorController.findById);
 
 /**
  * @openapi
@@ -165,7 +165,7 @@ collaboratorRoutes.get('/:id', collaboratorController.findById);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-collaboratorRoutes.put('/:id', collaboratorController.update);
+collaboratorRoutes.put("/:id", collaboratorController.update);
 
 /**
  * @openapi
@@ -190,6 +190,6 @@ collaboratorRoutes.put('/:id', collaboratorController.update);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-collaboratorRoutes.delete('/:id', collaboratorController.delete);
+collaboratorRoutes.delete("/:id", collaboratorController.delete);
 
 export { collaboratorRoutes };

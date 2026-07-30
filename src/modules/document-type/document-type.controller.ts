@@ -1,7 +1,7 @@
-import { NextFunction, Request, Response } from 'express';
-import { paginationSchema } from '../../shared/utils/pagination';
-import { documentTypeService } from './document-type.service';
-import { createDocumentTypeSchema, updateDocumentTypeSchema } from './document-type.schema';
+import { NextFunction, Request, Response } from "express";
+import { paginationSchema } from "../../shared/utils/pagination";
+import { documentTypeService } from "./document-type.service";
+import { createDocumentTypeSchema, updateDocumentTypeSchema } from "./document-type.schema";
 
 export const documentTypeController = {
   async create(req: Request, res: Response, next: NextFunction) {

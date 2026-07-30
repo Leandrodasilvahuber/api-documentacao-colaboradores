@@ -1,14 +1,14 @@
-import { AppError } from '../../../shared/errors/AppError';
-import { prisma } from '../../../shared/database/prisma';
-import { collaboratorRepository } from '../../collaborator/collaborator.repository';
-import { documentTypeRepository } from '../../document-type/document-type.repository';
-import { collaboratorDocumentRepository } from '../collaborator-document.repository';
-import { collaboratorDocumentService } from '../collaborator-document.service';
+import { AppError } from "../../../shared/errors/AppError";
+import { prisma } from "../../../shared/database/prisma";
+import { collaboratorRepository } from "../../collaborator/collaborator.repository";
+import { documentTypeRepository } from "../../document-type/document-type.repository";
+import { collaboratorDocumentRepository } from "../collaborator-document.repository";
+import { collaboratorDocumentService } from "../collaborator-document.service";
 
-jest.mock('../collaborator-document.repository');
-jest.mock('../../collaborator/collaborator.repository');
-jest.mock('../../document-type/document-type.repository');
-jest.mock('../../../shared/database/prisma', () => {
+jest.mock("../collaborator-document.repository");
+jest.mock("../../collaborator/collaborator.repository");
+jest.mock("../../document-type/document-type.repository");
+jest.mock("../../../shared/database/prisma", () => {
   const mockPrisma: { $transaction: jest.Mock } = { $transaction: jest.fn() };
   mockPrisma.$transaction.mockImplementation((callback: (tx: unknown) => unknown) =>
     callback(mockPrisma),
@@ -27,17 +27,17 @@ const mockedDocumentTypeRepository = documentTypeRepository as jest.Mocked<
 >;
 
 const collaborator = {
-  id: 'collaborator-1',
-  name: 'John Doe',
-  email: 'john@example.com',
+  id: "collaborator-1",
+  name: "John Doe",
+  email: "john@example.com",
   createdAt: new Date(),
   updatedAt: new Date(),
   deletedAt: null,
 };
 
 const documentType = {
-  id: 'document-type-1',
-  name: 'RG',
+  id: "document-type-1",
+  name: "RG",
   description: null,
   createdAt: new Date(),
   updatedAt: new Date(),
@@ -45,7 +45,7 @@ const documentType = {
 };
 
 const activeLink = {
-  id: 'link-1',
+  id: "link-1",
   collaboratorId: collaborator.id,
   documentTypeId: documentType.id,
   createdAt: new Date(),
@@ -54,13 +54,13 @@ const activeLink = {
 
 const deletedLink = { ...activeLink, deletedAt: new Date() };
 
-describe('collaboratorDocumentService', () => {
+describe("collaboratorDocumentService", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  describe('listByCollaborator', () => {
-    it('returns the active links with document type data', async () => {
+  describe("listByCollaborator", () => {
+    it("returns the active links with document type data", async () => {
       mockedCollaboratorRepository.findById.mockResolvedValue(collaborator);
       const links = [{ ...activeLink, documentType }];
       mockedCollaboratorDocumentRepository.findByCollaboratorId.mockResolvedValue(links);
@@ -73,18 +73,18 @@ describe('collaboratorDocumentService', () => {
       expect(result).toEqual(links);
     });
 
-    it('throws 404 when collaborator does not exist', async () => {
+    it("throws 404 when collaborator does not exist", async () => {
       mockedCollaboratorRepository.findById.mockResolvedValue(null);
 
-      await expect(
-        collaboratorDocumentService.listByCollaborator('missing-id'),
-      ).rejects.toThrow(AppError);
+      await expect(collaboratorDocumentService.listByCollaborator("missing-id")).rejects.toThrow(
+        AppError,
+      );
       expect(mockedCollaboratorDocumentRepository.findByCollaboratorId).not.toHaveBeenCalled();
     });
   });
 
-  describe('linkDocuments', () => {
-    it('creates new links inside a transaction', async () => {
+  describe("linkDocuments", () => {
+    it("creates new links inside a transaction", async () => {
       mockedCollaboratorRepository.findById.mockResolvedValue(collaborator);
       mockedDocumentTypeRepository.findById.mockResolvedValue(documentType);
       mockedCollaboratorDocumentRepository.findByCollaboratorAndDocumentType.mockResolvedValue(
@@ -104,27 +104,27 @@ describe('collaboratorDocumentService', () => {
       expect(result).toEqual({ created: [activeLink], reactivated: [] });
     });
 
-    it('throws 404 when collaborator does not exist', async () => {
+    it("throws 404 when collaborator does not exist", async () => {
       mockedCollaboratorRepository.findById.mockResolvedValue(null);
 
       await expect(
-        collaboratorDocumentService.linkDocuments('missing-id', [documentType.id]),
+        collaboratorDocumentService.linkDocuments("missing-id", [documentType.id]),
       ).rejects.toThrow(AppError);
       expect(mockedDocumentTypeRepository.findById).not.toHaveBeenCalled();
       expect(prisma.$transaction).not.toHaveBeenCalled();
     });
 
-    it('throws 404 when a document type does not exist', async () => {
+    it("throws 404 when a document type does not exist", async () => {
       mockedCollaboratorRepository.findById.mockResolvedValue(collaborator);
       mockedDocumentTypeRepository.findById.mockResolvedValue(null);
 
       await expect(
-        collaboratorDocumentService.linkDocuments(collaborator.id, ['missing-doc-type']),
+        collaboratorDocumentService.linkDocuments(collaborator.id, ["missing-doc-type"]),
       ).rejects.toThrow(AppError);
       expect(prisma.$transaction).not.toHaveBeenCalled();
     });
 
-    it('silently ignores document types already actively linked', async () => {
+    it("silently ignores document types already actively linked", async () => {
       mockedCollaboratorRepository.findById.mockResolvedValue(collaborator);
       mockedDocumentTypeRepository.findById.mockResolvedValue(documentType);
       mockedCollaboratorDocumentRepository.findByCollaboratorAndDocumentType.mockResolvedValue(
@@ -140,7 +140,7 @@ describe('collaboratorDocumentService', () => {
       expect(result).toEqual({ created: [], reactivated: [] });
     });
 
-    it('reactivates previously soft-deleted links instead of creating duplicates', async () => {
+    it("reactivates previously soft-deleted links instead of creating duplicates", async () => {
       mockedCollaboratorRepository.findById.mockResolvedValue(collaborator);
       mockedDocumentTypeRepository.findById.mockResolvedValue(documentType);
       mockedCollaboratorDocumentRepository.findByCollaboratorAndDocumentType.mockResolvedValue(
@@ -164,8 +164,8 @@ describe('collaboratorDocumentService', () => {
     });
   });
 
-  describe('unlinkDocument', () => {
-    it('soft deletes the active link', async () => {
+  describe("unlinkDocument", () => {
+    it("soft deletes the active link", async () => {
       mockedCollaboratorRepository.findById.mockResolvedValue(collaborator);
       mockedCollaboratorDocumentRepository.findByCollaboratorAndDocumentType.mockResolvedValue(
         activeLink,
@@ -177,28 +177,28 @@ describe('collaboratorDocumentService', () => {
       expect(mockedCollaboratorDocumentRepository.delete).toHaveBeenCalledWith(activeLink.id);
     });
 
-    it('throws 404 when collaborator does not exist', async () => {
+    it("throws 404 when collaborator does not exist", async () => {
       mockedCollaboratorRepository.findById.mockResolvedValue(null);
 
       await expect(
-        collaboratorDocumentService.unlinkDocument('missing-id', documentType.id),
+        collaboratorDocumentService.unlinkDocument("missing-id", documentType.id),
       ).rejects.toThrow(AppError);
       expect(mockedCollaboratorDocumentRepository.delete).not.toHaveBeenCalled();
     });
 
-    it('throws 404 when the link does not exist', async () => {
+    it("throws 404 when the link does not exist", async () => {
       mockedCollaboratorRepository.findById.mockResolvedValue(collaborator);
       mockedCollaboratorDocumentRepository.findByCollaboratorAndDocumentType.mockResolvedValue(
         null,
       );
 
       await expect(
-        collaboratorDocumentService.unlinkDocument(collaborator.id, 'missing-doc-type'),
+        collaboratorDocumentService.unlinkDocument(collaborator.id, "missing-doc-type"),
       ).rejects.toThrow(AppError);
       expect(mockedCollaboratorDocumentRepository.delete).not.toHaveBeenCalled();
     });
 
-    it('throws 404 when the link is already soft deleted', async () => {
+    it("throws 404 when the link is already soft deleted", async () => {
       mockedCollaboratorRepository.findById.mockResolvedValue(collaborator);
       mockedCollaboratorDocumentRepository.findByCollaboratorAndDocumentType.mockResolvedValue(
         deletedLink,

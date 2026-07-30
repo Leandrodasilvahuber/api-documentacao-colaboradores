@@ -1,7 +1,7 @@
-import { NextFunction, Request, Response } from 'express';
-import { paginationSchema } from '../../shared/utils/pagination';
-import { collaboratorService } from './collaborator.service';
-import { createCollaboratorSchema, updateCollaboratorSchema } from './collaborator.schema';
+import { NextFunction, Request, Response } from "express";
+import { paginationSchema } from "../../shared/utils/pagination";
+import { collaboratorService } from "./collaborator.service";
+import { createCollaboratorSchema, updateCollaboratorSchema } from "./collaborator.schema";
 
 export const collaboratorController = {
   async create(req: Request, res: Response, next: NextFunction) {

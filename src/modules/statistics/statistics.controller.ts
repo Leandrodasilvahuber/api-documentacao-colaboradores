@@ -1,6 +1,6 @@
-import { NextFunction, Request, Response } from 'express';
-import { statisticsService } from './statistics.service';
-import { recentSubmissionsQuerySchema } from './statistics.schema';
+import { NextFunction, Request, Response } from "express";
+import { statisticsService } from "./statistics.service";
+import { recentSubmissionsQuerySchema } from "./statistics.schema";
 
 export const statisticsController = {
   async completion(_req: Request, res: Response, next: NextFunction) {

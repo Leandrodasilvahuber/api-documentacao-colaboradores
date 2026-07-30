@@ -1,10 +1,10 @@
-import { prisma } from '../../shared/database/prisma';
-import { Prisma } from '../../generated/prisma/client';
-import { AppError } from '../../shared/errors/AppError';
-import { buildPaginationMeta, getPaginationParams } from '../../shared/utils/pagination';
-import { collaboratorDocumentRepository } from '../collaborator-document/collaborator-document.repository';
-import { submissionRepository } from './submission.repository';
-import { CreateSubmissionInput, PendingQuery } from './submission.schema';
+import { prisma } from "../../shared/database/prisma";
+import { Prisma } from "../../generated/prisma/client";
+import { AppError } from "../../shared/errors/AppError";
+import { buildPaginationMeta, getPaginationParams } from "../../shared/utils/pagination";
+import { collaboratorDocumentRepository } from "../collaborator-document/collaborator-document.repository";
+import { submissionRepository } from "./submission.repository";
+import { CreateSubmissionInput, PendingQuery } from "./submission.schema";
 
 async function findActiveLink(collaboratorId: string, documentTypeId: string) {
   const link = await collaboratorDocumentRepository.findByCollaboratorAndDocumentType(
@@ -13,7 +13,7 @@ async function findActiveLink(collaboratorId: string, documentTypeId: string) {
   );
 
   if (!link || link.deletedAt !== null) {
-    throw new AppError('Tipo de documento não está vinculado a este colaborador', 404);
+    throw new AppError("Tipo de documento não está vinculado a este colaborador", 404);
   }
 
   return link;
@@ -40,8 +40,8 @@ export const submissionService = {
         );
       });
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
-        throw new AppError('Envio concorrente detectado, tente novamente', 409);
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+        throw new AppError("Envio concorrente detectado, tente novamente", 409);
       }
       throw error;
     }

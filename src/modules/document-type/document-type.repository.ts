@@ -1,6 +1,6 @@
-import { prisma } from '../../shared/database/prisma';
-import { Prisma } from '../../generated/prisma/client';
-import { CreateDocumentTypeInput, UpdateDocumentTypeInput } from './document-type.schema';
+import { prisma } from "../../shared/database/prisma";
+import { Prisma } from "../../generated/prisma/client";
+import { CreateDocumentTypeInput, UpdateDocumentTypeInput } from "./document-type.schema";
 
 type Client = Prisma.TransactionClient | typeof prisma;
 

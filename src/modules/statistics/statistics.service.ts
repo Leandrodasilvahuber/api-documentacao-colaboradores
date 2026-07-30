@@ -1,5 +1,5 @@
-import { statisticsRepository } from './statistics.repository';
-import { RecentSubmissionsQuery } from './statistics.schema';
+import { statisticsRepository } from "./statistics.repository";
+import { RecentSubmissionsQuery } from "./statistics.schema";
 
 export const statisticsService = {
   async getCompletion() {
@@ -22,7 +22,7 @@ export const statisticsService = {
         if (b.pending !== a.pending) {
           return b.pending - a.pending;
         }
-        return (a.documentTypeName ?? '').localeCompare(b.documentTypeName ?? '');
+        return (a.documentTypeName ?? "").localeCompare(b.documentTypeName ?? "");
       });
   },
 

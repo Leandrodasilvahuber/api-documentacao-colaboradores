@@ -1,5 +1,5 @@
-import { Router } from 'express';
-import { collaboratorDocumentController } from './collaborator-document.controller';
+import { Router } from "express";
+import { collaboratorDocumentController } from "./collaborator-document.controller";
 
 const collaboratorDocumentRoutes = Router({ mergeParams: true });
 
@@ -32,7 +32,7 @@ const collaboratorDocumentRoutes = Router({ mergeParams: true });
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-collaboratorDocumentRoutes.get('/', collaboratorDocumentController.list);
+collaboratorDocumentRoutes.get("/", collaboratorDocumentController.list);
 
 /**
  * @openapi
@@ -92,7 +92,7 @@ collaboratorDocumentRoutes.get('/', collaboratorDocumentController.list);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-collaboratorDocumentRoutes.post('/', collaboratorDocumentController.link);
+collaboratorDocumentRoutes.post("/", collaboratorDocumentController.link);
 
 /**
  * @openapi
@@ -123,6 +123,6 @@ collaboratorDocumentRoutes.post('/', collaboratorDocumentController.link);
  *             schema:
  *               $ref: '#/components/schemas/Error'
  */
-collaboratorDocumentRoutes.delete('/:documentTypeId', collaboratorDocumentController.unlink);
+collaboratorDocumentRoutes.delete("/:documentTypeId", collaboratorDocumentController.unlink);
 
 export { collaboratorDocumentRoutes };
