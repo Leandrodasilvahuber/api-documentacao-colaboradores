@@ -48,7 +48,23 @@ model CollaboratorDocumentType {
 
   collaborator   Collaborator @relation(fields: [collaboratorId], references: [id])
   documentType   DocumentType @relation(fields: [documentTypeId], references: [id])
+  submissions    DocumentSubmission[]
 
   @@unique([collaboratorId, documentTypeId])
   @@map("collaborator_document_types")
+}
+
+model DocumentSubmission {
+  id                         String   @id @default(uuid())
+  collaboratorDocumentTypeId String   @map("collaborator_document_type_id")
+  version                    Int
+  isCurrentVersion           Boolean  @default(true) @map("is_current_version")
+  fileName                   String?  @map("file_name")
+  submittedAt                DateTime @default(now()) @map("submitted_at")
+  createdAt                  DateTime @default(now()) @map("created_at")
+
+  collaboratorDocumentType   CollaboratorDocumentType @relation(fields: [collaboratorDocumentTypeId], references: [id])
+
+  @@unique([collaboratorDocumentTypeId, version])
+  @@map("document_submissions")
 }
