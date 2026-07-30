@@ -72,6 +72,18 @@ describe('statisticsService', () => {
 
       expect(result.map((item) => item.documentTypeId)).toEqual(['dt-2', 'dt-3', 'dt-1']);
     });
+
+    it('breaks ties in pending count by document type name alphabetically', async () => {
+      mockedStatisticsRepository.byDocumentType.mockResolvedValue([
+        { documentTypeId: 'dt-1', documentTypeName: 'RG', total: 4, submitted: 2, pending: 2 },
+        { documentTypeId: 'dt-2', documentTypeName: 'CPF', total: 4, submitted: 2, pending: 2 },
+        { documentTypeId: 'dt-3', documentTypeName: 'CNH', total: 4, submitted: 2, pending: 2 },
+      ]);
+
+      const result = await statisticsService.getPendingRanking();
+
+      expect(result.map((item) => item.documentTypeId)).toEqual(['dt-3', 'dt-2', 'dt-1']);
+    });
   });
 
   describe('getRecentSubmissions', () => {

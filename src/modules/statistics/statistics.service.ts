@@ -18,7 +18,12 @@ export const statisticsService = {
 
     return byDocumentType
       .filter((item) => item.pending > 0)
-      .sort((a, b) => b.pending - a.pending);
+      .sort((a, b) => {
+        if (b.pending !== a.pending) {
+          return b.pending - a.pending;
+        }
+        return (a.documentTypeName ?? '').localeCompare(b.documentTypeName ?? '');
+      });
   },
 
   async getRecentSubmissions(query: RecentSubmissionsQuery) {
