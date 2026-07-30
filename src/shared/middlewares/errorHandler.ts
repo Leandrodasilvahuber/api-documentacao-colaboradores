@@ -4,7 +4,7 @@ import { AppError } from "../errors/AppError";
 
 export function errorHandler(
   error: Error,
-  _req: Request,
+  req: Request,
   res: Response,
   _next: NextFunction,
 ) {
@@ -21,6 +21,6 @@ export function errorHandler(
     return;
   }
 
-  console.error(error);
+  req.log.error(error);
   res.status(500).json({ message: "Erro interno do servidor" });
 }
