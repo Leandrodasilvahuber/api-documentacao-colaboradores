@@ -54,9 +54,9 @@ model CollaboratorDocumentType {
   createdAt      DateTime  @default(now()) @map("created_at")
   deletedAt      DateTime? @map("deleted_at")
 
-  collaborator   Collaborator @relation(fields: [collaboratorId], references: [id])
-  documentType   DocumentType @relation(fields: [documentTypeId], references: [id])
-  submissions    DocumentSubmission[]
+  collaborator Collaborator         @relation(fields: [collaboratorId], references: [id])
+  documentType DocumentType         @relation(fields: [documentTypeId], references: [id])
+  submissions  DocumentSubmission[]
 
   @@unique([collaboratorId, documentTypeId])
   @@map("collaborator_document_types")
@@ -71,7 +71,7 @@ model DocumentSubmission {
   submittedAt                DateTime @default(now()) @map("submitted_at")
   createdAt                  DateTime @default(now()) @map("created_at")
 
-  collaboratorDocumentType   CollaboratorDocumentType @relation(fields: [collaboratorDocumentTypeId], references: [id])
+  collaboratorDocumentType CollaboratorDocumentType @relation(fields: [collaboratorDocumentTypeId], references: [id])
 
   @@unique([collaboratorDocumentTypeId, version])
   @@map("document_submissions")
