@@ -123,11 +123,20 @@ gerada a partir dos comentários `@openapi` em cada arquivo `*.routes.ts` (ver `
 - `npm run dev` — roda `src/server.ts` com `tsx watch` (reinicia automaticamente ao alterar arquivos)
 - `npm run build` — compila `src/` para `dist/` via `tsc`
 - `npm run start` — roda o build compilado (`dist/server.js`), requer `npm run build` antes
-- `npm test` — roda os testes com Jest
+- `npm test` — roda os testes unitários com Jest
+- `npm run test:coverage` — roda os testes unitários com relatório de cobertura
+- `npm run test:e2e` — roda os testes end-to-end contra um banco de teste real (ver seção
+  "Testes e2e" abaixo)
 - `npm run lint` / `npm run lint:fix` — checa/corrige problemas de lint com ESLint
 - `npm run format` / `npm run format:check` — formata/checa a formatação com Prettier
+- `npm run typecheck` — checa os tipos com `tsc --noEmit`, sem gerar `dist/`
 - `npm run prisma:generate` — gera o Prisma Client
 - `npm run prisma:migrate` — cria/aplica migrações a partir de `prisma/schema.prisma`
+- `npm run prisma:validate` / `npm run prisma:format:check` — valida a sintaxe e a formatação do
+  `schema.prisma`
+- `npm run audit` — roda `npm audit` (nunca falha o comando, só informa vulnerabilidades)
+- `npm run check:all` — roda lint, format:check, typecheck, prisma:validate,
+  prisma:format:check, os testes unitários e o audit em sequência
 
 ## Estrutura de pastas
 
@@ -153,6 +162,39 @@ gerada a partir dos comentários `@openapi` em cada arquivo `*.routes.ts` (ver `
 4. A `collaborators.email` e a `document_types.name` têm unicidade garantida por índice único
    parcial (`WHERE deleted_at IS NULL`) criado à mão nas migrations — ver seção de decisões
    técnicas.
+
+## Testes e2e
+
+Os testes end-to-end (`e2e/`) sobem a aplicação real (via `supertest`, sem precisar de uma porta
+HTTP) e batem contra um **banco de teste dedicado** (`api_documentacao_colaboradores_test`), no
+mesmo container Postgres do `docker-compose.yml` — evita misturar dados de teste com os dados de
+desenvolvimento.
+
+1. Com o banco no ar (`docker compose up -d`), copie `.env.test.example` para `.env.test`:
+
+   ```bash
+   cp .env.test.example .env.test
+   ```
+
+2. Rode:
+
+   ```bash
+   npm run test:e2e
+   ```
+
+   O `globalSetup` (`e2e/setup/globalSetup.ts`) cria o banco de teste automaticamente (se ainda não
+   existir) e aplica as migrations nele antes de rodar os testes — não é preciso criar o banco
+   manualmente. Cada suíte limpa as tabelas (via `deleteMany`, respeitando as foreign keys) antes de
+   rodar, garantindo isolamento entre os testes.
+
+Cobertura atual: um fluxo feliz ponta a ponta (criar colaborador → criar tipo de documento →
+vincular → enviar documento → reenviar → histórico → pendências → estatísticas) e os erros
+principais (409 de email duplicado, 404 de vínculo inexistente). Casos de erro mais granulares já
+estão cobertos pelos testes unitários e pela coleção Bruno.
+
+> O client do Prisma 7 usa um engine WASM carregado via `import()` dinâmico, que exige a flag
+> `NODE_OPTIONS=--experimental-vm-modules` para rodar dentro do Jest — o script `test:e2e` já
+> inclui essa flag.
 
 ## pgAdmin
 

@@ -2,6 +2,7 @@ node_modules/
 dist/
 *.log
 .env
+.env.test
 
 /src/generated/prisma
 .claude/skills/
