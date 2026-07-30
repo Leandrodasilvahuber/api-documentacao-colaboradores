@@ -1,0 +1,38 @@
+meta {
+  name: Reenviar RG (versao 2)
+  type: http
+  seq: 15
+}
+
+post {
+  url: {{baseUrl}}/collaborators/{{collaboratorId}}/documents/{{documentTypeIdRg}}/submissions
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "fileName": "rg_v2.pdf"
+  }
+}
+
+vars:pre-request {
+  baseUrl: localhost:3000
+}
+
+tests {
+  test("Status 201", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+
+  test("Cria a versao 2 como atual", function() {
+    const body = res.getBody();
+    expect(body.version).to.equal(2);
+    expect(body.isCurrentVersion).to.equal(true);
+    expect(body.fileName).to.equal("rg_v2.pdf");
+  });
+}

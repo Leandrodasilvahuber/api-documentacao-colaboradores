@@ -1,0 +1,39 @@
+meta {
+  name: Envios recentes - reflete reenvio sem duplicar versao antiga
+  type: http
+  seq: 16
+}
+
+get {
+  url: {{baseUrl}}/statistics/recent-submissions
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  baseUrl: localhost:3000
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("O envio mais recente e a versao 2 do RG", function() {
+    const body = res.getBody();
+    expect(body[0].collaboratorDocumentType.documentTypeId).to.equal(
+      bru.getVar('documentTypeIdRg'),
+    );
+    expect(body[0].version).to.equal(2);
+  });
+
+  test("A versao 1 do RG (desativada) nao aparece na lista", function() {
+    const body = res.getBody();
+    const rgVersion1 = body.find(
+      (item) =>
+        item.collaboratorDocumentType.documentTypeId === bru.getVar('documentTypeIdRg') &&
+        item.version === 1,
+    );
+    expect(rgVersion1).to.equal(undefined);
+  });
+}

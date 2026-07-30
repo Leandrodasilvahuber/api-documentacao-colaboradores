@@ -71,6 +71,10 @@ export const statisticsRepository = {
 
   findRecentSubmissions(limit: number) {
     return prisma.documentSubmission.findMany({
+      where: {
+        isCurrentVersion: true,
+        collaboratorDocumentType: activeLinkWhere,
+      },
       orderBy: { submittedAt: 'desc' },
       take: limit,
       include: {

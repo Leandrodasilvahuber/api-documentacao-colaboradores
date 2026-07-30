@@ -1,0 +1,29 @@
+meta {
+  name: Envios recentes - exclui colaborador removido
+  type: http
+  seq: 18
+}
+
+get {
+  url: {{baseUrl}}/statistics/recent-submissions
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  baseUrl: localhost:3000
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Nenhum envio do colaborador removido aparece na lista", function() {
+    const body = res.getBody();
+    const fromDeletedCollaborator = body.find(
+      (item) => item.collaboratorDocumentType.collaborator.id === bru.getVar('collaboratorId'),
+    );
+    expect(fromDeletedCollaborator).to.equal(undefined);
+  });
+}
