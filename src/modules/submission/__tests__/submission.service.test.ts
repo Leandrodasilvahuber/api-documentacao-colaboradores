@@ -189,6 +189,35 @@ describe('submissionService', () => {
       ).rejects.toThrow('falha simulada');
       expect(mockedSubmissionRepository.create).not.toHaveBeenCalled();
     });
+
+    it('não retorna sucesso quando a criação da nova versão falha durante um reenvio (rollback simulado)', async () => {
+      mockedSubmissionRepository.findLatestVersion.mockResolvedValue({
+        id: 'submission-1',
+        collaboratorDocumentTypeId: activeLink.id,
+        version: 1,
+        isCurrentVersion: true,
+        fileName: 'cpf.pdf',
+        submittedAt: new Date(),
+        createdAt: new Date(),
+      });
+      mockedSubmissionRepository.deactivateCurrentVersion.mockResolvedValue(undefined as never);
+      mockedSubmissionRepository.create.mockRejectedValue(new Error('falha simulada'));
+
+      await expect(
+        submissionService.submit(activeLink.collaboratorId, activeLink.documentTypeId, {
+          fileName: 'cpf_v2.pdf',
+        }),
+      ).rejects.toThrow('falha simulada');
+
+      expect(mockedSubmissionRepository.deactivateCurrentVersion).toHaveBeenCalledWith(
+        activeLink.id,
+        prisma,
+      );
+      expect(mockedSubmissionRepository.create).toHaveBeenCalledWith(
+        { collaboratorDocumentTypeId: activeLink.id, version: 2, fileName: 'cpf_v2.pdf' },
+        prisma,
+      );
+    });
   });
 
   describe('listVersions', () => {
