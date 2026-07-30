@@ -1,3 +1,4 @@
+import { Prisma } from '../../../generated/prisma/client';
 import { AppError } from '../../../shared/errors/AppError';
 import { prisma } from '../../../shared/database/prisma';
 import { collaboratorDocumentRepository } from '../../collaborator-document/collaborator-document.repository';
@@ -58,6 +59,33 @@ describe('documentTypeService', () => {
         documentTypeService.create({ name: documentType.name }),
       ).rejects.toThrow(AppError);
       expect(mockedRepository.create).not.toHaveBeenCalled();
+    });
+
+    it('throws 409 when the unique constraint fails (concurrent create)', async () => {
+      mockedRepository.findByName.mockResolvedValue(null);
+      const uniqueError = new Prisma.PrismaClientKnownRequestError('Unique constraint failed', {
+        code: 'P2002',
+        clientVersion: '7.0.0',
+      });
+      mockedRepository.create.mockRejectedValue(uniqueError);
+
+      await expect(
+        documentTypeService.create({ name: documentType.name }),
+      ).rejects.toMatchObject({
+        name: 'AppError',
+        statusCode: 409,
+        message: 'Já existe um tipo de documento com este nome',
+      });
+    });
+
+    it('rethrows errors that are not the unique constraint violation', async () => {
+      mockedRepository.findByName.mockResolvedValue(null);
+      const otherError = new Error('database is unreachable');
+      mockedRepository.create.mockRejectedValue(otherError);
+
+      await expect(
+        documentTypeService.create({ name: documentType.name }),
+      ).rejects.toThrow('database is unreachable');
     });
   });
 
@@ -146,6 +174,35 @@ describe('documentTypeService', () => {
       expect(mockedRepository.update).toHaveBeenCalledWith(documentType.id, {
         name: documentType.name,
       });
+    });
+
+    it('throws 409 when the unique constraint fails (concurrent update)', async () => {
+      mockedRepository.findById.mockResolvedValue(documentType);
+      mockedRepository.findByName.mockResolvedValue(null);
+      const uniqueError = new Prisma.PrismaClientKnownRequestError('Unique constraint failed', {
+        code: 'P2002',
+        clientVersion: '7.0.0',
+      });
+      mockedRepository.update.mockRejectedValue(uniqueError);
+
+      await expect(
+        documentTypeService.update(documentType.id, { name: 'CNH' }),
+      ).rejects.toMatchObject({
+        name: 'AppError',
+        statusCode: 409,
+        message: 'Já existe um tipo de documento com este nome',
+      });
+    });
+
+    it('rethrows errors that are not the unique constraint violation on update', async () => {
+      mockedRepository.findById.mockResolvedValue(documentType);
+      mockedRepository.findByName.mockResolvedValue(null);
+      const otherError = new Error('database is unreachable');
+      mockedRepository.update.mockRejectedValue(otherError);
+
+      await expect(
+        documentTypeService.update(documentType.id, { name: 'CNH' }),
+      ).rejects.toThrow('database is unreachable');
     });
   });
 

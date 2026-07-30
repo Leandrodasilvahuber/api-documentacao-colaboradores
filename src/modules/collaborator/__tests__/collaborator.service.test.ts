@@ -1,3 +1,4 @@
+import { Prisma } from '../../../generated/prisma/client';
 import { AppError } from '../../../shared/errors/AppError';
 import { prisma } from '../../../shared/database/prisma';
 import { collaboratorDocumentRepository } from '../../collaborator-document/collaborator-document.repository';
@@ -58,6 +59,33 @@ describe('collaboratorService', () => {
         collaboratorService.create({ name: collaborator.name, email: collaborator.email }),
       ).rejects.toThrow(AppError);
       expect(mockedRepository.create).not.toHaveBeenCalled();
+    });
+
+    it('throws 409 when the unique constraint fails (concurrent create)', async () => {
+      mockedRepository.findByEmail.mockResolvedValue(null);
+      const uniqueError = new Prisma.PrismaClientKnownRequestError('Unique constraint failed', {
+        code: 'P2002',
+        clientVersion: '7.0.0',
+      });
+      mockedRepository.create.mockRejectedValue(uniqueError);
+
+      await expect(
+        collaboratorService.create({ name: collaborator.name, email: collaborator.email }),
+      ).rejects.toMatchObject({
+        name: 'AppError',
+        statusCode: 409,
+        message: 'Já existe um colaborador com este email',
+      });
+    });
+
+    it('rethrows errors that are not the unique constraint violation', async () => {
+      mockedRepository.findByEmail.mockResolvedValue(null);
+      const otherError = new Error('database is unreachable');
+      mockedRepository.create.mockRejectedValue(otherError);
+
+      await expect(
+        collaboratorService.create({ name: collaborator.name, email: collaborator.email }),
+      ).rejects.toThrow('database is unreachable');
     });
   });
 
@@ -146,6 +174,35 @@ describe('collaboratorService', () => {
       expect(mockedRepository.update).toHaveBeenCalledWith(collaborator.id, {
         email: collaborator.email,
       });
+    });
+
+    it('throws 409 when the unique constraint fails (concurrent update)', async () => {
+      mockedRepository.findById.mockResolvedValue(collaborator);
+      mockedRepository.findByEmail.mockResolvedValue(null);
+      const uniqueError = new Prisma.PrismaClientKnownRequestError('Unique constraint failed', {
+        code: 'P2002',
+        clientVersion: '7.0.0',
+      });
+      mockedRepository.update.mockRejectedValue(uniqueError);
+
+      await expect(
+        collaboratorService.update(collaborator.id, { email: 'taken@example.com' }),
+      ).rejects.toMatchObject({
+        name: 'AppError',
+        statusCode: 409,
+        message: 'Já existe um colaborador com este email',
+      });
+    });
+
+    it('rethrows errors that are not the unique constraint violation on update', async () => {
+      mockedRepository.findById.mockResolvedValue(collaborator);
+      mockedRepository.findByEmail.mockResolvedValue(null);
+      const otherError = new Error('database is unreachable');
+      mockedRepository.update.mockRejectedValue(otherError);
+
+      await expect(
+        collaboratorService.update(collaborator.id, { email: 'taken@example.com' }),
+      ).rejects.toThrow('database is unreachable');
     });
   });
 

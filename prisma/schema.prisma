@@ -13,6 +13,11 @@ datasource db {
   provider = "postgresql"
 }
 
+// email tem um índice único parcial no banco (WHERE deleted_at IS NULL), criado à mão em
+// prisma/migrations/20260728013516_create_collaborator_table/migration.sql — não é
+// representável aqui via @unique/@@unique porque o Prisma Schema Language não suporta
+// índices únicos parciais (WHERE); um @unique puro quebraria o reaproveitamento de email
+// de colaboradores soft-deletados.
 model Collaborator {
   id        String    @id @default(uuid())
   name      String
@@ -26,6 +31,9 @@ model Collaborator {
   @@map("collaborators")
 }
 
+// name tem um índice único parcial no banco (WHERE deleted_at IS NULL), criado à mão em
+// prisma/migrations/20260728204106_create_document_type_table/migration.sql — não é
+// representável aqui via @unique/@@unique pelo mesmo motivo do Collaborator.email acima.
 model DocumentType {
   id          String    @id @default(uuid())
   name        String

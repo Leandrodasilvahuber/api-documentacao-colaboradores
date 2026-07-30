@@ -1,9 +1,14 @@
 import { prisma } from '../../shared/database/prisma';
+import { Prisma } from '../../generated/prisma/client';
 import { AppError } from '../../shared/errors/AppError';
 import { buildPaginationMeta, getPaginationParams, PaginationInput } from '../../shared/utils/pagination';
 import { collaboratorDocumentRepository } from '../collaborator-document/collaborator-document.repository';
 import { collaboratorRepository } from './collaborator.repository';
 import { CreateCollaboratorInput, UpdateCollaboratorInput } from './collaborator.schema';
+
+function isDuplicateEmailError(error: unknown) {
+  return error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002';
+}
 
 export const collaboratorService = {
   async create(data: CreateCollaboratorInput) {
@@ -12,7 +17,14 @@ export const collaboratorService = {
       throw new AppError('Já existe um colaborador com este email', 409);
     }
 
-    return collaboratorRepository.create(data);
+    try {
+      return await collaboratorRepository.create(data);
+    } catch (error) {
+      if (isDuplicateEmailError(error)) {
+        throw new AppError('Já existe um colaborador com este email', 409);
+      }
+      throw error;
+    }
   },
 
   async findAll(pagination: PaginationInput) {
@@ -44,7 +56,14 @@ export const collaboratorService = {
       }
     }
 
-    return collaboratorRepository.update(id, data);
+    try {
+      return await collaboratorRepository.update(id, data);
+    } catch (error) {
+      if (isDuplicateEmailError(error)) {
+        throw new AppError('Já existe um colaborador com este email', 409);
+      }
+      throw error;
+    }
   },
 
   async delete(id: string) {
