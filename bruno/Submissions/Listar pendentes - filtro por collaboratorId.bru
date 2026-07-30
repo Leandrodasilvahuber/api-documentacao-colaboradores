@@ -1,0 +1,32 @@
+meta {
+  name: Listar pendentes - filtro por collaboratorId
+  type: http
+  seq: 13
+}
+
+get {
+  url: {{baseUrl}}/documents/pending?collaboratorId={{collaboratorId}}
+  body: none
+  auth: none
+}
+
+params:query {
+  collaboratorId: {{collaboratorId}}
+}
+
+vars:pre-request {
+  baseUrl: localhost:3000
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Inclui apenas o vinculo do RG (sem envio), nao o do CPF (ja enviado)", function() {
+    const body = res.getBody();
+    const ids = body.data.map((item) => item.documentTypeId);
+    expect(ids).to.include(bru.getVar('documentTypeId2'));
+    expect(ids).to.not.include(bru.getVar('documentTypeId'));
+  });
+}

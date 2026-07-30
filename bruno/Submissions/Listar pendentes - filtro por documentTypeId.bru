@@ -1,0 +1,32 @@
+meta {
+  name: Listar pendentes - filtro por documentTypeId
+  type: http
+  seq: 14
+}
+
+get {
+  url: {{baseUrl}}/documents/pending?documentTypeId={{documentTypeId2}}
+  body: none
+  auth: none
+}
+
+params:query {
+  documentTypeId: {{documentTypeId2}}
+}
+
+vars:pre-request {
+  baseUrl: localhost:3000
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Retorna apenas vinculos do tipo de documento RG", function() {
+    const body = res.getBody();
+    body.data.forEach((item) => {
+      expect(item.documentTypeId).to.equal(bru.getVar('documentTypeId2'));
+    });
+  });
+}

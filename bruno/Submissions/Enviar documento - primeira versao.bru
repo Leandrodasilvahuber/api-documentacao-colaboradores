@@ -1,0 +1,38 @@
+meta {
+  name: Enviar documento - primeira versao
+  type: http
+  seq: 5
+}
+
+post {
+  url: {{baseUrl}}/collaborators/{{collaboratorId}}/documents/{{documentTypeId}}/submissions
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "fileName": "cpf_v1.pdf"
+  }
+}
+
+vars:pre-request {
+  baseUrl: localhost:3000
+}
+
+tests {
+  test("Status 201", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+
+  test("Cria a versao 1 como atual", function() {
+    const body = res.getBody();
+    expect(body.version).to.equal(1);
+    expect(body.isCurrentVersion).to.equal(true);
+    expect(body.fileName).to.equal("cpf_v1.pdf");
+  });
+}

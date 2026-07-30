@@ -1,0 +1,25 @@
+meta {
+  name: Listar pendentes - filtro invalido (400)
+  type: http
+  seq: 16
+}
+
+get {
+  url: {{baseUrl}}/documents/pending?collaboratorId=id-invalido
+  body: none
+  auth: none
+}
+
+params:query {
+  collaboratorId: id-invalido
+}
+
+vars:pre-request {
+  baseUrl: localhost:3000
+}
+
+tests {
+  test("Status 400", function() {
+    expect(res.getStatus()).to.equal(400);
+  });
+}

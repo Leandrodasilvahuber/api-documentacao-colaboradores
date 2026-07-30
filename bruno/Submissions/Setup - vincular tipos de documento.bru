@@ -1,0 +1,36 @@
+meta {
+  name: Setup - vincular tipos de documento
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/collaborators/{{collaboratorId}}/documents
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "documentTypeIds": ["{{documentTypeId}}", "{{documentTypeId2}}"]
+  }
+}
+
+vars:pre-request {
+  baseUrl: localhost:3000
+}
+
+tests {
+  test("Status 201", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+
+  test("Cria os dois vinculos", function() {
+    const body = res.getBody();
+    expect(body.created).to.have.lengthOf(2);
+  });
+}

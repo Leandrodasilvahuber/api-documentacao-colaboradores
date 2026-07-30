@@ -1,0 +1,31 @@
+meta {
+  name: Enviar documento - vinculo nao encontrado (404)
+  type: http
+  seq: 9
+}
+
+post {
+  url: {{baseUrl}}/collaborators/{{collaboratorId}}/documents/00000000-0000-0000-0000-000000000000/submissions
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "fileName": "inexistente.pdf"
+  }
+}
+
+vars:pre-request {
+  baseUrl: localhost:3000
+}
+
+tests {
+  test("Status 404", function() {
+    expect(res.getStatus()).to.equal(404);
+  });
+}

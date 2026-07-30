@@ -1,0 +1,21 @@
+meta {
+  name: Listar historico - vinculo nao encontrado (404)
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{baseUrl}}/collaborators/{{collaboratorId}}/documents/00000000-0000-0000-0000-000000000000/submissions
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  baseUrl: localhost:3000
+}
+
+tests {
+  test("Status 404", function() {
+    expect(res.getStatus()).to.equal(404);
+  });
+}

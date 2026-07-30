@@ -1,0 +1,31 @@
+meta {
+  name: Listar pendentes - filtro por collaboratorName
+  type: http
+  seq: 15
+}
+
+get {
+  url: {{baseUrl}}/documents/pending?collaboratorName=Submissions
+  body: none
+  auth: none
+}
+
+params:query {
+  collaboratorName: Submissions
+}
+
+vars:pre-request {
+  baseUrl: localhost:3000
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Encontra o vinculo pelo nome do colaborador (busca parcial, case-insensitive)", function() {
+    const body = res.getBody();
+    const ids = body.data.map((item) => item.documentTypeId);
+    expect(ids).to.include(bru.getVar('documentTypeId2'));
+  });
+}

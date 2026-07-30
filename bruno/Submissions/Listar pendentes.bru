@@ -1,0 +1,28 @@
+meta {
+  name: Listar pendentes
+  type: http
+  seq: 12
+}
+
+get {
+  url: {{baseUrl}}/documents/pending
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  baseUrl: localhost:3000
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Retorna dados paginados", function() {
+    const body = res.getBody();
+    expect(body).to.have.property('data').that.is.an('array');
+    expect(body).to.have.property('meta');
+    expect(body.meta).to.have.all.keys('total', 'page', 'limit', 'totalPages');
+  });
+}
