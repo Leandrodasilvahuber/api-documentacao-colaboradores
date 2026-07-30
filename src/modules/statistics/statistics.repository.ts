@@ -68,4 +68,19 @@ export const statisticsRepository = {
       };
     });
   },
+
+  findRecentSubmissions(limit: number) {
+    return prisma.documentSubmission.findMany({
+      orderBy: { submittedAt: 'desc' },
+      take: limit,
+      include: {
+        collaboratorDocumentType: {
+          include: {
+            collaborator: { select: { id: true, name: true, email: true } },
+            documentType: { select: { id: true, name: true } },
+          },
+        },
+      },
+    });
+  },
 };
