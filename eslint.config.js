@@ -2,6 +2,7 @@ const js = require("@eslint/js");
 const tseslint = require("typescript-eslint");
 const prettierConfig = require("eslint-config-prettier");
 const globals = require("globals");
+const sonarjs = require("eslint-plugin-sonarjs");
 
 module.exports = tseslint.config(
   {
@@ -9,6 +10,7 @@ module.exports = tseslint.config(
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,
+  sonarjs.configs.recommended,
   {
     languageOptions: {
       globals: globals.node,

@@ -11,6 +11,7 @@ import { logger } from "./shared/logger";
 import { swaggerSpec } from "./config/swagger";
 
 const app = express();
+app.disable("x-powered-by");
 
 app.use(pinoHttp({ logger }));
 app.use(express.json());
