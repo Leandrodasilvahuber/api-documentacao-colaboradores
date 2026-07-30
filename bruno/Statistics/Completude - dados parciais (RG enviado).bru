@@ -1,0 +1,28 @@
+meta {
+  name: Completude - dados parciais (RG enviado)
+  type: http
+  seq: 8
+}
+
+get {
+  url: {{baseUrl}}/statistics/completion
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  baseUrl: localhost:3000
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("submitted aumentou e pending diminuiu em relacao ao total", function() {
+    const body = res.getBody();
+    expect(body.submitted).to.be.at.least(1);
+    expect(body.pending).to.be.at.least(1);
+    expect(body.percentage).to.be.within(0, 100);
+  });
+}

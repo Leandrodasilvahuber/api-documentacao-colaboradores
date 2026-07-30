@@ -1,0 +1,28 @@
+meta {
+  name: Ranking de pendentes - apos enviar RG
+  type: http
+  seq: 9
+}
+
+get {
+  url: {{baseUrl}}/statistics/pending-ranking
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  baseUrl: localhost:3000
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("RG sai do ranking e CPF continua pendente", function() {
+    const body = res.getBody();
+    const ids = body.map((item) => item.documentTypeId);
+    expect(ids).to.not.include(bru.getVar('documentTypeIdRg'));
+    expect(ids).to.include(bru.getVar('documentTypeIdCpf'));
+  });
+}

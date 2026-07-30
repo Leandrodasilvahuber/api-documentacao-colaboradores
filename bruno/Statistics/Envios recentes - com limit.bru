@@ -1,0 +1,33 @@
+meta {
+  name: Envios recentes - com limit
+  type: http
+  seq: 13
+}
+
+get {
+  url: {{baseUrl}}/statistics/recent-submissions?limit=1
+  body: none
+  auth: none
+}
+
+params:query {
+  limit: 1
+}
+
+vars:pre-request {
+  baseUrl: localhost:3000
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Retorna exatamente 1 envio", function() {
+    const body = res.getBody();
+    expect(body).to.have.lengthOf(1);
+    expect(body[0].collaboratorDocumentType.documentTypeId).to.equal(
+      bru.getVar('documentTypeIdCpf'),
+    );
+  });
+}

@@ -1,0 +1,31 @@
+meta {
+  name: Enviar CPF (dados completos)
+  type: http
+  seq: 10
+}
+
+post {
+  url: {{baseUrl}}/collaborators/{{collaboratorId}}/documents/{{documentTypeIdCpf}}/submissions
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "fileName": "cpf.pdf"
+  }
+}
+
+vars:pre-request {
+  baseUrl: localhost:3000
+}
+
+tests {
+  test("Status 201", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+}

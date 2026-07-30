@@ -1,0 +1,34 @@
+meta {
+  name: Envios recentes
+  type: http
+  seq: 12
+}
+
+get {
+  url: {{baseUrl}}/statistics/recent-submissions
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  baseUrl: localhost:3000
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Retorna uma lista com no maximo 10 envios (limit padrao)", function() {
+    const body = res.getBody();
+    expect(body).to.be.an('array');
+    expect(body.length).to.be.at.most(10);
+  });
+
+  test("O envio mais recente e o CPF enviado por ultimo", function() {
+    const body = res.getBody();
+    expect(body[0].collaboratorDocumentType.documentTypeId).to.equal(
+      bru.getVar('documentTypeIdCpf'),
+    );
+  });
+}

@@ -1,0 +1,32 @@
+meta {
+  name: Completude - antes de qualquer envio
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/statistics/completion
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  baseUrl: localhost:3000
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Retorna as chaves esperadas", function() {
+    const body = res.getBody();
+    expect(body).to.have.all.keys('total', 'submitted', 'pending', 'percentage');
+  });
+
+  test("Inclui os 2 vinculos recem criados como pendentes", function() {
+    const body = res.getBody();
+    expect(body.total).to.be.at.least(2);
+    expect(body.pending).to.be.at.least(2);
+  });
+}

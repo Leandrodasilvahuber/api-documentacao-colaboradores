@@ -1,0 +1,39 @@
+meta {
+  name: Setup - criar tipo de documento RG
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/document-types
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "name": "RG Statistics",
+    "description": "Usado nos testes de estatisticas"
+  }
+}
+
+vars:pre-request {
+  baseUrl: localhost:3000
+}
+
+script:post-response {
+  if (res.getStatus() === 201) {
+    const body = res.getBody();
+    bru.setVar('documentTypeIdRg', body.id);
+  }
+}
+
+tests {
+  test("Status 201", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+}

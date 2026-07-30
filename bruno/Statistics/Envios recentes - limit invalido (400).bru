@@ -1,0 +1,25 @@
+meta {
+  name: Envios recentes - limit invalido (400)
+  type: http
+  seq: 14
+}
+
+get {
+  url: {{baseUrl}}/statistics/recent-submissions?limit=0
+  body: none
+  auth: none
+}
+
+params:query {
+  limit: 0
+}
+
+vars:pre-request {
+  baseUrl: localhost:3000
+}
+
+tests {
+  test("Status 400", function() {
+    expect(res.getStatus()).to.equal(400);
+  });
+}

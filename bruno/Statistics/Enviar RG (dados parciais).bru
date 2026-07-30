@@ -1,0 +1,31 @@
+meta {
+  name: Enviar RG (dados parciais)
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrl}}/collaborators/{{collaboratorId}}/documents/{{documentTypeIdRg}}/submissions
+  body: json
+  auth: none
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "fileName": "rg.pdf"
+  }
+}
+
+vars:pre-request {
+  baseUrl: localhost:3000
+}
+
+tests {
+  test("Status 201", function() {
+    expect(res.getStatus()).to.equal(201);
+  });
+}

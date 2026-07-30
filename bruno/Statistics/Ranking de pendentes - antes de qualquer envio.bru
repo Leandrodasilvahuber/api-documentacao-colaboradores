@@ -1,0 +1,43 @@
+meta {
+  name: Ranking de pendentes - antes de qualquer envio
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/statistics/pending-ranking
+  body: none
+  auth: none
+}
+
+vars:pre-request {
+  baseUrl: localhost:3000
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Retorna uma lista de tipos de documento pendentes", function() {
+    const body = res.getBody();
+    expect(body).to.be.an('array');
+    body.forEach((item) => {
+      expect(item).to.have.all.keys(
+        'documentTypeId',
+        'documentTypeName',
+        'total',
+        'submitted',
+        'pending',
+      );
+      expect(item.pending).to.be.greaterThan(0);
+    });
+  });
+
+  test("Inclui RG e CPF criados no setup", function() {
+    const body = res.getBody();
+    const ids = body.map((item) => item.documentTypeId);
+    expect(ids).to.include(bru.getVar('documentTypeIdRg'));
+    expect(ids).to.include(bru.getVar('documentTypeIdCpf'));
+  });
+}
