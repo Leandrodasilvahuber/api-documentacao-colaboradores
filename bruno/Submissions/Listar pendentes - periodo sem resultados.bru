@@ -1,0 +1,32 @@
+meta {
+  name: Listar pendentes - periodo sem resultados
+  type: http
+  seq: 18
+}
+
+get {
+  url: {{baseUrl}}/documents/pending?createdFrom=2000-01-01&createdTo=2000-01-02
+  body: none
+  auth: none
+}
+
+params:query {
+  createdFrom: 2000-01-01
+  createdTo: 2000-01-02
+}
+
+vars:pre-request {
+  baseUrl: localhost:3000
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Nao inclui o vinculo do RG (criado fora do periodo)", function() {
+    const body = res.getBody();
+    const ids = body.data.map((item) => item.documentTypeId);
+    expect(ids).to.not.include(bru.getVar('documentTypeId2'));
+  });
+}

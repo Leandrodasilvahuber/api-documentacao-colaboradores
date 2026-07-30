@@ -1,0 +1,26 @@
+meta {
+  name: Listar pendentes - periodo invalido (400)
+  type: http
+  seq: 19
+}
+
+get {
+  url: {{baseUrl}}/documents/pending?createdFrom=2026-01-01&createdTo=2020-01-01
+  body: none
+  auth: none
+}
+
+params:query {
+  createdFrom: 2026-01-01
+  createdTo: 2020-01-01
+}
+
+vars:pre-request {
+  baseUrl: localhost:3000
+}
+
+tests {
+  test("Status 400", function() {
+    expect(res.getStatus()).to.equal(400);
+  });
+}

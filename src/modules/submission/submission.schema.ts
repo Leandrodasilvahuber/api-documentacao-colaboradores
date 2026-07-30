@@ -13,13 +13,20 @@ export const submissionParamsSchema = z.object({
   documentTypeId: z.uuid('documentTypeId inválido'),
 });
 
-export const pendingQuerySchema = z.object({
-  page: z.coerce.number().int().min(1).default(1),
-  limit: z.coerce.number().int().min(1).max(100).default(20),
-  collaboratorId: z.uuid('collaboratorId inválido').optional(),
-  documentTypeId: z.uuid('documentTypeId inválido').optional(),
-  collaboratorName: z.string().min(1).optional(),
-});
+export const pendingQuerySchema = z
+  .object({
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(100).default(20),
+    collaboratorId: z.uuid('collaboratorId inválido').optional(),
+    documentTypeId: z.uuid('documentTypeId inválido').optional(),
+    collaboratorName: z.string().min(1).optional(),
+    createdFrom: z.coerce.date('createdFrom inválido').optional(),
+    createdTo: z.coerce.date('createdTo inválido').optional(),
+  })
+  .refine(
+    (query) => !query.createdFrom || !query.createdTo || query.createdFrom <= query.createdTo,
+    { message: 'createdFrom deve ser anterior ou igual a createdTo', path: ['createdFrom'] },
+  );
 
 export type CreateSubmissionInput = z.infer<typeof createSubmissionSchema>;
 export type SubmissionParams = z.infer<typeof submissionParamsSchema>;

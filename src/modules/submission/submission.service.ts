@@ -59,6 +59,8 @@ export const submissionService = {
       ...(query.collaboratorId !== undefined && { collaboratorId: query.collaboratorId }),
       ...(query.documentTypeId !== undefined && { documentTypeId: query.documentTypeId }),
       ...(query.collaboratorName !== undefined && { collaboratorName: query.collaboratorName }),
+      ...(query.createdFrom !== undefined && { createdFrom: query.createdFrom }),
+      ...(query.createdTo !== undefined && { createdTo: query.createdTo }),
     };
 
     const [data, total] = await Promise.all([

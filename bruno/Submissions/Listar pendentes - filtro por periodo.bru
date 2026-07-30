@@ -1,0 +1,32 @@
+meta {
+  name: Listar pendentes - filtro por periodo
+  type: http
+  seq: 17
+}
+
+get {
+  url: {{baseUrl}}/documents/pending?createdFrom=2020-01-01&createdTo=2999-01-01
+  body: none
+  auth: none
+}
+
+params:query {
+  createdFrom: 2020-01-01
+  createdTo: 2999-01-01
+}
+
+vars:pre-request {
+  baseUrl: localhost:3000
+}
+
+tests {
+  test("Status 200", function() {
+    expect(res.getStatus()).to.equal(200);
+  });
+
+  test("Inclui o vinculo do RG (criado dentro do periodo)", function() {
+    const body = res.getBody();
+    const ids = body.data.map((item) => item.documentTypeId);
+    expect(ids).to.include(bru.getVar('documentTypeId2'));
+  });
+}

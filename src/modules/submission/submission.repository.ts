@@ -67,12 +67,16 @@ type PendingFilters = {
   collaboratorId?: string;
   documentTypeId?: string;
   collaboratorName?: string;
+  createdFrom?: Date;
+  createdTo?: Date;
 };
 
 function buildPendingWhere({
   collaboratorId,
   documentTypeId,
   collaboratorName,
+  createdFrom,
+  createdTo,
 }: PendingFilters): Prisma.CollaboratorDocumentTypeWhereInput {
   return {
     deletedAt: null,
@@ -90,5 +94,11 @@ function buildPendingWhere({
     submissions: {
       none: { isCurrentVersion: true },
     },
+    ...((createdFrom || createdTo) && {
+      createdAt: {
+        ...(createdFrom && { gte: createdFrom }),
+        ...(createdTo && { lte: createdTo }),
+      },
+    }),
   };
 }

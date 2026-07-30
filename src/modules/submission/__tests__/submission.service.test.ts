@@ -245,5 +245,28 @@ describe('submissionService', () => {
         meta: { total: 0, page: 2, limit: 5, totalPages: 0 },
       });
     });
+
+    it('delegates the createdFrom/createdTo filters to the repository', async () => {
+      mockedSubmissionRepository.findPending.mockResolvedValue([]);
+      mockedSubmissionRepository.countPending.mockResolvedValue(0);
+      const createdFrom = new Date('2026-07-01');
+      const createdTo = new Date('2026-07-31');
+
+      await submissionService.listPending({
+        page: 1,
+        limit: 20,
+        createdFrom,
+        createdTo,
+      });
+
+      expect(mockedSubmissionRepository.findPending).toHaveBeenCalledWith(
+        { createdFrom, createdTo },
+        { skip: 0, take: 20 },
+      );
+      expect(mockedSubmissionRepository.countPending).toHaveBeenCalledWith({
+        createdFrom,
+        createdTo,
+      });
+    });
   });
 });
