@@ -4,7 +4,7 @@ import { AppError } from '../../shared/errors/AppError';
 import { buildPaginationMeta, getPaginationParams } from '../../shared/utils/pagination';
 import { collaboratorDocumentRepository } from '../collaborator-document/collaborator-document.repository';
 import { submissionRepository } from './submission.repository';
-import { PendingQuery } from './submission.schema';
+import { CreateSubmissionInput, PendingQuery } from './submission.schema';
 
 async function findActiveLink(collaboratorId: string, documentTypeId: string) {
   const link = await collaboratorDocumentRepository.findByCollaboratorAndDocumentType(
@@ -20,7 +20,7 @@ async function findActiveLink(collaboratorId: string, documentTypeId: string) {
 }
 
 export const submissionService = {
-  async submit(collaboratorId: string, documentTypeId: string, data: { fileName?: string }) {
+  async submit(collaboratorId: string, documentTypeId: string, data: CreateSubmissionInput) {
     const link = await findActiveLink(collaboratorId, documentTypeId);
 
     const latestSubmission = await submissionRepository.findLatestVersion(link.id);
