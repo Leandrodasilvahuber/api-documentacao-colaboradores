@@ -7,14 +7,6 @@ const activeLinkWhere = {
 } as const;
 
 export const statisticsRepository = {
-  countCollaborators() {
-    return prisma.collaborator.count({ where: { deletedAt: null } });
-  },
-
-  countDocumentTypes() {
-    return prisma.documentType.count({ where: { deletedAt: null } });
-  },
-
   countLinks() {
     return prisma.collaboratorDocumentType.count({ where: activeLinkWhere });
   },
@@ -23,16 +15,6 @@ export const statisticsRepository = {
     return prisma.collaboratorDocumentType.count({
       where: { ...activeLinkWhere, submissions: { some: { isCurrentVersion: true } } },
     });
-  },
-
-  countPendingLinks() {
-    return prisma.collaboratorDocumentType.count({
-      where: { ...activeLinkWhere, submissions: { none: { isCurrentVersion: true } } },
-    });
-  },
-
-  countTotalSubmissions() {
-    return prisma.documentSubmission.count();
   },
 
   async byDocumentType() {
