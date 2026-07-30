@@ -8,7 +8,18 @@ This is a Node.js + TypeScript project (`api-documentacao-colaboradores`) using 
 
 The `collaborator` module (`src/modules/collaborator`) implements full CRUD over `/collaborators`, with soft delete (`deletedAt`) and paginated listing. It's the reference pattern for any new domain module: `*.schema.ts` (zod validation) → `*.repository.ts` (Prisma access) → `*.service.ts` (business rules, throws `AppError`) → `*.controller.ts` (HTTP glue, delegates to the service) → `*.routes.ts` (wires the controller into an Express `Router`), registered in `src/app.ts`.
 
-Server port comes from `process.env.PORT`, defaulting to `3000`. Environment variables are validated at boot via zod in `src/config/env.ts` (`NODE_ENV`, `PORT`, `DATABASE_URL`); it throws if invalid.
+Beyond `collaborator`, the domain has four more modules, all registered in `src/app.ts`:
+
+- `document-type` (`src/modules/document-type`) — CRUD over `/document-types`, same pattern as `collaborator` (soft delete, partial unique index on `name`, paginated listing).
+- `collaborator-document` (`src/modules/collaborator-document`) — `/collaborators/:collaboratorId/documents`, links/unlinks `DocumentType`s to a `Collaborator` (`CollaboratorDocumentType`). Re-linking a soft-deleted link reactivates it instead of erroring; linking an already-active one is a silent no-op.
+- `submission` (`src/modules/submission`) — `/collaborators/:collaboratorId/documents/:documentTypeId/submissions` (submit a new document version + list version history) and `/documents/pending` (paginated, filterable list of links still awaiting submission). Submitting runs in a Prisma transaction that deactivates the current version and creates the next one; a unique index on `(collaboratorDocumentTypeId, version)` turns concurrent submits into a 409 (`Prisma.PrismaClientKnownRequestError` code `P2002`) instead of corrupting version history.
+- `statistics` (`src/modules/statistics`) — `/statistics`, read-only aggregates: completion percentage, pending ranking by document type (ties broken alphabetically), and recent submissions. No schema/repository writes — pure read-side aggregation over the other modules' tables.
+
+Swagger/OpenAPI docs are generated from `@openapi` JSDoc blocks in each `*.routes.ts` file, assembled by `swagger-jsdoc` in `src/config/swagger.ts`, and served at `/docs` via `swagger-ui-express` (mounted in `src/app.ts`).
+
+Structured logging uses `pino` + `pino-http` (`src/shared/logger`), wired as request-logging middleware in `src/app.ts`; log level is controlled by `LOG_LEVEL` (validated in `src/config/env.ts`), and in non-production `NODE_ENV` it pipes through `pino-pretty`.
+
+Server port comes from `process.env.PORT`, defaulting to `3000`. Environment variables are validated at boot via zod in `src/config/env.ts` (`NODE_ENV`, `PORT`, `DATABASE_URL`, `LOG_LEVEL`); it throws if invalid.
 
 ## Commands
 
@@ -26,11 +37,12 @@ Server port comes from `process.env.PORT`, defaulting to `3000`. Environment var
 - `docker-compose.yml` provisions a local `postgres` service (`db`) and `pgAdmin`. Copy `.env.example` to `.env`, then `docker compose up -d`.
 - `DATABASE_URL` in `.env` points at the local Postgres container by default.
 - The Prisma Client is generated to `src/generated/prisma` (gitignored) and exported pre-configured from `src/shared/database/prisma.ts` using `@prisma/adapter-pg`.
-- Migrations live in `prisma/migrations/`. The `collaborators.email` uniqueness is enforced by a **partial unique index** (`WHERE deleted_at IS NULL`), not a plain `@unique` in the Prisma schema — this lets a soft-deleted collaborator's email be reused. Keep this in mind if the schema is ever regenerated from the DB or the constraint is touched again.
+- Migrations live in `prisma/migrations/`. Both `collaborators.email` and `document_types.name` uniqueness are enforced by a **partial unique index** (`WHERE deleted_at IS NULL`), not a plain `@unique` in the Prisma schema — this lets a soft-deleted collaborator's email (or document type's name) be reused. Keep this in mind if the schema is ever regenerated from the DB or the constraint is touched again.
+- Soft-deleting a `Collaborator` or `DocumentType` cascades a soft delete to its `CollaboratorDocumentType` links (see `9367b9a`/`928b00c` in history) — don't assume deleting the parent leaves orphaned active links.
 
 ## API testing collection
 
-`bruno/` holds a native Bruno collection (`.bru` files) covering all `/collaborators` endpoints, including success and error cases (409/400/404) and pagination. Use the `Local` environment (`baseUrl`). Bruno's scripting API (`res.getStatus()`, `res.getBody()`, `bru.setVar()`) is not the same as Postman's `pm.*` — don't mix them when editing `.bru` files.
+`bruno/` holds a native Bruno collection (`.bru` files) covering all endpoints across every module (`Collaborators`, `DocumentTypes`, `CollaboratorDocuments`, `Submissions`, `Statistics`), including success and error cases (409/400/404) and pagination. Use the `Local` environment (`baseUrl`). Bruno's scripting API (`res.getStatus()`, `res.getBody()`, `bru.setVar()`) is not the same as Postman's `pm.*` — don't mix them when editing `.bru` files.
 
 ## TypeScript configuration notes
 
