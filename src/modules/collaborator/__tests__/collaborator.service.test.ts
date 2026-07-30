@@ -244,5 +244,15 @@ describe('collaboratorService', () => {
       });
       expect(mockedRepository.delete).toHaveBeenCalledTimes(1);
     });
+
+    it('não chama collaboratorRepository.delete quando a exclusão em cascata dos vínculos falha (rollback simulado)', async () => {
+      mockedRepository.findById.mockResolvedValue(collaborator);
+      mockedCollaboratorDocumentRepository.deleteByCollaboratorId.mockRejectedValue(
+        new Error('falha simulada'),
+      );
+
+      await expect(collaboratorService.delete(collaborator.id)).rejects.toThrow('falha simulada');
+      expect(mockedRepository.delete).not.toHaveBeenCalled();
+    });
   });
 });

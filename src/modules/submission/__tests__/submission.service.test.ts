@@ -177,6 +177,18 @@ describe('submissionService', () => {
         submissionService.submit(activeLink.collaboratorId, activeLink.documentTypeId, {}),
       ).rejects.toThrow('database is unreachable');
     });
+
+    it('não chama submissionRepository.create quando desativar a versão atual falha (rollback simulado)', async () => {
+      mockedSubmissionRepository.findLatestVersion.mockResolvedValue(null);
+      mockedSubmissionRepository.deactivateCurrentVersion.mockRejectedValue(
+        new Error('falha simulada'),
+      );
+
+      await expect(
+        submissionService.submit(activeLink.collaboratorId, activeLink.documentTypeId, {}),
+      ).rejects.toThrow('falha simulada');
+      expect(mockedSubmissionRepository.create).not.toHaveBeenCalled();
+    });
   });
 
   describe('listVersions', () => {
