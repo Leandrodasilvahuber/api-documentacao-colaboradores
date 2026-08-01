@@ -1,3 +1,4 @@
+import cors from "cors";
 import express from "express";
 import pinoHttp from "pino-http";
 import swaggerUi from "swagger-ui-express";
@@ -13,6 +14,7 @@ import { swaggerSpec } from "./config/swagger";
 const app = express();
 app.disable("x-powered-by");
 
+app.use(cors());
 app.use(pinoHttp({ logger }));
 app.use(express.json());
 
