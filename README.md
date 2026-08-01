@@ -61,6 +61,9 @@ gerada a partir dos comentários `@openapi` em cada arquivo `*.routes.ts` (ver `
 - **Validação de ambiente no boot**: `src/config/env.ts` valida `NODE_ENV`, `PORT`, `DATABASE_URL`
   e `LOG_LEVEL` com zod e lança erro imediatamente se algo estiver inválido, evitando falhas
   silenciosas em runtime.
+- **CORS liberado**: `app.use(cors())` em `src/app.ts` libera qualquer origem, permitindo que
+  clientes fora da API (como os HTMLs estáticos de `painel-teste/`) consumam os endpoints via
+  `fetch` sem bloqueio do navegador.
 
 ## Requisitos
 
@@ -152,6 +155,8 @@ gerada a partir dos comentários `@openapi` em cada arquivo `*.routes.ts` (ver `
 - `src/generated/prisma` — client do Prisma gerado automaticamente (ignorado pelo git)
 - `prisma/migrations` — migrações SQL versionadas
 - `bruno/` — coleção Bruno com requests cobrindo sucesso e erro (400/404/409) de todos os endpoints
+- `painel-teste/` — HTMLs estáticos (sem build) para inspeção manual da API pelo navegador, ver
+  seção "Testando a API"
 
 ## Banco de dados (PostgreSQL via Docker Compose)
 
@@ -218,3 +223,13 @@ estão cobertos pelos testes unitários e pela coleção Bruno.
   paginação, filtros). Use o ambiente `Local` (`baseUrl`).
 - **Swagger UI**: com a API rodando, acesse `/docs` para explorar e testar os endpoints
   interativamente, com os schemas de request/response documentados.
+- **Painel de teste manual**: com a API rodando (`npm run dev`), abra os arquivos de
+  `painel-teste/` direto no navegador (ex.: `painel-teste/colaboradores.html`) — são páginas
+  estáticas sem dependências que consomem os endpoints existentes via `fetch`:
+  - `colaboradores.html` — lista colaboradores; clicar em uma linha abre o detalhe.
+  - `colaborador-detalhe.html` — dados do colaborador, tipos de documento vinculados (com
+    associar/desvincular) e envio/reenvio de versão por tipo de documento.
+  - `tipos-documento.html` — lista e cria tipos de documento; clicar em uma linha abre o detalhe.
+  - `tipo-documento-detalhe.html` — dados do tipo de documento e ação de desativar (soft delete;
+    não há endpoint de reativação).
+  - `estatisticas.html` — dashboard com completude, ranking de pendências e envios recentes.
