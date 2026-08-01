@@ -282,9 +282,12 @@
         statusNode.textContent = "Desvinculando...";
         statusNode.className = "unlink-status";
         try {
-          await fetchJson(`${baseUrl}/collaborators/${collaboratorId}/documents/${documentTypeId}`, {
-            method: "DELETE",
-          });
+          await fetchJson(
+            `${baseUrl}/collaborators/${collaboratorId}/documents/${documentTypeId}`,
+            {
+              method: "DELETE",
+            },
+          );
           await load();
         } catch (err) {
           statusNode.textContent = `Erro ao desvincular: ${err.message}`;
@@ -300,11 +303,14 @@
         statusNode.className = "submit-status";
 
         try {
-          await fetchJson(`${baseUrl}/collaborators/${collaboratorId}/documents/${documentTypeId}/submissions`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(fileName ? { fileName } : {}),
-          });
+          await fetchJson(
+            `${baseUrl}/collaborators/${collaboratorId}/documents/${documentTypeId}/submissions`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify(fileName ? { fileName } : {}),
+            },
+          );
           await load();
         } catch (err) {
           statusNode.textContent = `Erro ao enviar: ${err.message}`;
@@ -369,7 +375,9 @@
           await loadLinkForm(linkedIds);
 
           if (!Array.isArray(links) || links.length === 0) {
-            documentsEl.appendChild(el("div", "empty", "Nenhum tipo de documento vinculado a este colaborador."));
+            documentsEl.appendChild(
+              el("div", "empty", "Nenhum tipo de documento vinculado a este colaborador."),
+            );
             setStatus("Carregado.");
             return;
           }
@@ -378,7 +386,9 @@
             const docNode = el("div", "doc-type");
             const label = el("div", "label");
             const labelLeft = el("div", "label-left");
-            labelLeft.appendChild(el("span", null, `📄 ${link.documentType?.name ?? link.documentTypeId}`));
+            labelLeft.appendChild(
+              el("span", null, `📄 ${link.documentType?.name ?? link.documentTypeId}`),
+            );
             label.appendChild(labelLeft);
 
             const unlinkBtn = document.createElement("button");
