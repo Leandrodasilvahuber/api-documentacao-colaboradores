@@ -1,0 +1,490 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Detalhe do Colaborador (teste)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family: system-ui, Arial, sans-serif;
+        margin: 0;
+        padding: 2rem;
+        background: #f4f5f7;
+        color: #222;
+      }
+      a.back {
+        display: inline-block;
+        margin-bottom: 1rem;
+        color: #2563eb;
+        text-decoration: none;
+        font-size: 0.9rem;
+      }
+      a.back:hover {
+        text-decoration: underline;
+      }
+      h1 {
+        margin-top: 0;
+      }
+      .collaborator-card {
+        background: #fff;
+        border-radius: 10px;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      }
+      .collaborator-card .email {
+        color: #666;
+        font-size: 0.9rem;
+      }
+      #status {
+        margin-bottom: 1rem;
+        font-size: 0.9rem;
+        color: #555;
+      }
+      #status.error {
+        color: #b91c1c;
+      }
+      .doc-type {
+        background: #fff;
+        border: 1px solid #e2e2e2;
+        border-radius: 10px;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      }
+      .doc-type > .label {
+        font-weight: 600;
+        font-size: 1.05rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .status-badge {
+        font-size: 0.7rem;
+        padding: 0.15rem 0.6rem;
+        border-radius: 999px;
+        font-weight: 500;
+      }
+      .status-badge.pending {
+        background: #fef3c7;
+        color: #92400e;
+      }
+      .status-badge.sent {
+        background: #dcfce7;
+        color: #166534;
+      }
+      table.versions {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 0.75rem;
+        font-size: 0.85rem;
+      }
+      table.versions th,
+      table.versions td {
+        text-align: left;
+        padding: 0.4rem 0.6rem;
+        border-top: 1px solid #eee;
+      }
+      table.versions th {
+        color: #555;
+        font-weight: 500;
+      }
+      .current-tag {
+        background: #dcfce7;
+        color: #166534;
+        font-size: 0.7rem;
+        padding: 0.05rem 0.4rem;
+        border-radius: 999px;
+      }
+      .empty {
+        color: #888;
+        font-style: italic;
+        font-size: 0.85rem;
+      }
+      .link-card {
+        background: #fff;
+        border-radius: 10px;
+        padding: 1rem 1.25rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      }
+      .link-card h2 {
+        font-size: 1.05rem;
+        margin: 0 0 0.75rem;
+      }
+      .link-form {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+      .link-form select {
+        flex: 1;
+        min-width: 220px;
+        padding: 0.5rem 0.75rem;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 0.95rem;
+      }
+      button {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 6px;
+        background: #2563eb;
+        color: #fff;
+        cursor: pointer;
+        font-size: 0.9rem;
+      }
+      button:hover {
+        background: #1d4ed8;
+      }
+      button:disabled {
+        background: #9ca3af;
+        cursor: not-allowed;
+      }
+      button.danger {
+        background: #dc2626;
+      }
+      button.danger:hover {
+        background: #b91c1c;
+      }
+      #linkStatus {
+        margin-top: 0.6rem;
+        font-size: 0.85rem;
+        color: #555;
+      }
+      #linkStatus.error {
+        color: #b91c1c;
+      }
+      #linkStatus.success {
+        color: #166534;
+      }
+      .doc-type > .label {
+        justify-content: space-between;
+      }
+      .doc-type .label-left {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .unlink-status {
+        font-size: 0.8rem;
+        margin-top: 0.4rem;
+      }
+      .unlink-status.error {
+        color: #b91c1c;
+      }
+      .submit-form {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 0.75rem;
+        flex-wrap: wrap;
+      }
+      .submit-form input {
+        flex: 1;
+        min-width: 160px;
+        padding: 0.4rem 0.6rem;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        font-size: 0.85rem;
+      }
+      button.primary {
+        background: #16a34a;
+      }
+      button.primary:hover {
+        background: #15803d;
+      }
+      .submit-status {
+        font-size: 0.8rem;
+        margin-top: 0.4rem;
+      }
+      .submit-status.error {
+        color: #b91c1c;
+      }
+      .submit-status.success {
+        color: #166534;
+      }
+    </style>
+  </head>
+  <body>
+    <a class="back" href="colaboradores.html">&larr; Voltar para colaboradores</a>
+    <h1>Detalhe do Colaborador</h1>
+
+    <div id="status">Carregando...</div>
+
+    <div id="collaboratorCard" class="collaborator-card" style="display: none"></div>
+
+    <div class="link-card">
+      <h2>Associar tipo de documento</h2>
+      <form class="link-form" id="linkForm">
+        <select id="linkSelect"></select>
+        <button type="submit">Associar</button>
+      </form>
+      <div id="linkStatus"></div>
+    </div>
+
+    <div id="documents"></div>
+
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const collaboratorId = params.get("id");
+      const baseUrl = (params.get("baseUrl") || "http://localhost:3000").replace(/\/$/, "");
+
+      const statusEl = document.getElementById("status");
+      const cardEl = document.getElementById("collaboratorCard");
+      const documentsEl = document.getElementById("documents");
+      const linkSelect = document.getElementById("linkSelect");
+      const linkStatusEl = document.getElementById("linkStatus");
+
+      function setStatus(msg, isError = false) {
+        statusEl.textContent = msg;
+        statusEl.className = isError ? "error" : "";
+      }
+
+      function setLinkStatus(msg, kind) {
+        linkStatusEl.textContent = msg;
+        linkStatusEl.className = kind || "";
+      }
+
+      function formatDate(value) {
+        if (!value) return "-";
+        const d = new Date(value);
+        return isNaN(d.getTime()) ? String(value) : d.toLocaleString("pt-BR");
+      }
+
+      function el(tag, className, text) {
+        const node = document.createElement(tag);
+        if (className) node.className = className;
+        if (text !== undefined) node.textContent = text;
+        return node;
+      }
+
+      async function fetchJson(url, options) {
+        const res = await fetch(url, options);
+        if (!res.ok) {
+          let message = `HTTP ${res.status}`;
+          try {
+            const body = await res.json();
+            if (body?.message) message = body.message;
+          } catch {
+            // resposta sem corpo JSON
+          }
+          throw new Error(message);
+        }
+        if (res.status === 204) return null;
+        return res.json();
+      }
+
+      async function unlinkDocumentType(documentTypeId, statusNode, button) {
+        button.disabled = true;
+        statusNode.textContent = "Desvinculando...";
+        statusNode.className = "unlink-status";
+        try {
+          await fetchJson(`${baseUrl}/collaborators/${collaboratorId}/documents/${documentTypeId}`, {
+            method: "DELETE",
+          });
+          await load();
+        } catch (err) {
+          statusNode.textContent = `Erro ao desvincular: ${err.message}`;
+          statusNode.className = "unlink-status error";
+          button.disabled = false;
+        }
+      }
+
+      async function submitVersion(documentTypeId, fileNameInput, statusNode, button) {
+        const fileName = fileNameInput.value.trim();
+        button.disabled = true;
+        statusNode.textContent = "Enviando...";
+        statusNode.className = "submit-status";
+
+        try {
+          await fetchJson(`${baseUrl}/collaborators/${collaboratorId}/documents/${documentTypeId}/submissions`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(fileName ? { fileName } : {}),
+          });
+          await load();
+        } catch (err) {
+          statusNode.textContent = `Erro ao enviar: ${err.message}`;
+          statusNode.className = "submit-status error";
+          button.disabled = false;
+        }
+      }
+
+      async function loadLinkForm(linkedDocumentTypeIds) {
+        linkSelect.innerHTML = "";
+        setLinkStatus("");
+
+        let allDocumentTypes = [];
+        try {
+          const page = await fetchJson(`${baseUrl}/document-types?limit=100`);
+          allDocumentTypes = page.data ?? page;
+        } catch (err) {
+          setLinkStatus(`Erro ao carregar tipos de documento: ${err.message}`, "error");
+          return;
+        }
+
+        const available = allDocumentTypes.filter((dt) => !linkedDocumentTypeIds.has(dt.id));
+
+        if (available.length === 0) {
+          linkSelect.disabled = true;
+          linkSelect.innerHTML = `<option>Todos os tipos já estão associados</option>`;
+          document.querySelector("#linkForm button").disabled = true;
+          return;
+        }
+
+        linkSelect.disabled = false;
+        document.querySelector("#linkForm button").disabled = false;
+        for (const dt of available) {
+          const option = document.createElement("option");
+          option.value = dt.id;
+          option.textContent = dt.name;
+          linkSelect.appendChild(option);
+        }
+      }
+
+      async function load() {
+        if (!collaboratorId) {
+          setStatus("Nenhum colaborador informado (parâmetro ?id= ausente).", true);
+          return;
+        }
+
+        documentsEl.innerHTML = "";
+
+        try {
+          setStatus("Carregando colaborador...");
+          const collaborator = await fetchJson(`${baseUrl}/collaborators/${collaboratorId}`);
+
+          cardEl.style.display = "block";
+          cardEl.innerHTML = `
+            <div style="font-weight:600; font-size:1.1rem;">👤 ${collaborator.name}</div>
+            <div class="email">${collaborator.email}</div>
+          `;
+
+          setStatus("Carregando tipos de documento...");
+          const links = await fetchJson(`${baseUrl}/collaborators/${collaboratorId}/documents`);
+          const linkedIds = new Set(links.map((link) => link.documentTypeId));
+          await loadLinkForm(linkedIds);
+
+          if (!Array.isArray(links) || links.length === 0) {
+            documentsEl.appendChild(el("div", "empty", "Nenhum tipo de documento vinculado a este colaborador."));
+            setStatus("Carregado.");
+            return;
+          }
+
+          for (const link of links) {
+            const docNode = el("div", "doc-type");
+            const label = el("div", "label");
+            const labelLeft = el("div", "label-left");
+            labelLeft.appendChild(el("span", null, `📄 ${link.documentType?.name ?? link.documentTypeId}`));
+            label.appendChild(labelLeft);
+
+            const unlinkBtn = document.createElement("button");
+            unlinkBtn.className = "danger";
+            unlinkBtn.textContent = "Desvincular";
+            label.appendChild(unlinkBtn);
+
+            docNode.appendChild(label);
+
+            const unlinkStatusNode = el("div", "unlink-status");
+            docNode.appendChild(unlinkStatusNode);
+
+            unlinkBtn.addEventListener("click", () =>
+              unlinkDocumentType(link.documentTypeId, unlinkStatusNode, unlinkBtn),
+            );
+
+            let versions = [];
+            try {
+              versions = await fetchJson(
+                `${baseUrl}/collaborators/${collaboratorId}/documents/${link.documentTypeId}/submissions`,
+              );
+            } catch (err) {
+              docNode.appendChild(el("div", "empty", `Erro ao carregar envios: ${err.message}`));
+            }
+
+            if (Array.isArray(versions) && versions.length > 0) {
+              const badge = el("span", "status-badge sent", "enviado");
+              labelLeft.appendChild(badge);
+
+              const table = document.createElement("table");
+              table.className = "versions";
+              table.innerHTML = `
+                <thead>
+                  <tr><th>Versão</th><th>Arquivo</th><th>Enviado em</th><th></th></tr>
+                </thead>
+                <tbody></tbody>
+              `;
+              const tbody = table.querySelector("tbody");
+              for (const version of versions) {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                  <td>v${version.version}</td>
+                  <td>${version.fileName ?? "-"}</td>
+                  <td>${formatDate(version.submittedAt)}</td>
+                  <td>${version.isCurrentVersion ? '<span class="current-tag">atual</span>' : ""}</td>
+                `;
+                tbody.appendChild(tr);
+              }
+              docNode.appendChild(table);
+            } else if (Array.isArray(versions)) {
+              labelLeft.appendChild(el("span", "status-badge pending", "pendente"));
+              docNode.appendChild(el("div", "empty", "Nenhum envio realizado ainda."));
+            }
+
+            if (Array.isArray(versions)) {
+              const isResend = versions.length > 0;
+              const submitForm = el("div", "submit-form");
+
+              const fileNameInput = document.createElement("input");
+              fileNameInput.placeholder = "Nome do arquivo (opcional)";
+              submitForm.appendChild(fileNameInput);
+
+              const submitBtn = document.createElement("button");
+              submitBtn.className = "primary";
+              submitBtn.textContent = isResend ? "Reenviar" : "Enviar";
+              submitForm.appendChild(submitBtn);
+
+              docNode.appendChild(submitForm);
+
+              const submitStatusNode = el("div", "submit-status");
+              docNode.appendChild(submitStatusNode);
+
+              submitBtn.addEventListener("click", () =>
+                submitVersion(link.documentTypeId, fileNameInput, submitStatusNode, submitBtn),
+              );
+            }
+
+            documentsEl.appendChild(docNode);
+          }
+
+          setStatus("Carregado.");
+        } catch (err) {
+          setStatus(`Erro: ${err.message}`, true);
+        }
+      }
+
+      document.getElementById("linkForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const documentTypeId = linkSelect.value;
+        if (!documentTypeId) return;
+
+        setLinkStatus("Associando...");
+        try {
+          await fetchJson(`${baseUrl}/collaborators/${collaboratorId}/documents`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ documentTypeIds: [documentTypeId] }),
+          });
+          await load();
+          setLinkStatus("Tipo de documento associado com sucesso.", "success");
+        } catch (err) {
+          setLinkStatus(`Erro ao associar: ${err.message}`, "error");
+        }
+      });
+
+      load();
+    </script>
+  </body>
+</html>
