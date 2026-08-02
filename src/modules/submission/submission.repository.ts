@@ -10,8 +10,8 @@ export const submissionRepository = {
     });
   },
 
-  findLatestVersion(collaboratorDocumentTypeId: string) {
-    return prisma.documentSubmission.findFirst({
+  findLatestVersion(collaboratorDocumentTypeId: string, client: Client = prisma) {
+    return client.documentSubmission.findFirst({
       where: { collaboratorDocumentTypeId },
       orderBy: { version: "desc" },
     });

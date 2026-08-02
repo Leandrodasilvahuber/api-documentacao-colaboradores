@@ -168,6 +168,22 @@ describe("submissionService", () => {
       });
     });
 
+    it("throws 409 when the transaction fails with a serializable write conflict", async () => {
+      const writeConflictError = new Prisma.PrismaClientKnownRequestError(
+        "Transaction failed due to a write conflict or a deadlock",
+        { code: "P2034", clientVersion: "7.0.0" },
+      );
+      (prisma.$transaction as jest.Mock).mockRejectedValueOnce(writeConflictError);
+
+      await expect(
+        submissionService.submit(activeLink.collaboratorId, activeLink.documentTypeId, {}),
+      ).rejects.toMatchObject({
+        name: "AppError",
+        statusCode: 409,
+        message: "Envio concorrente detectado, tente novamente",
+      });
+    });
+
     it("rethrows errors that are not the unique constraint violation", async () => {
       mockedSubmissionRepository.findLatestVersion.mockResolvedValue(null);
       const otherError = new Error("database is unreachable");

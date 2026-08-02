@@ -23,24 +23,34 @@ export const submissionService = {
   async submit(collaboratorId: string, documentTypeId: string, data: CreateSubmissionInput) {
     const link = await findActiveLink(collaboratorId, documentTypeId);
 
-    const latestSubmission = await submissionRepository.findLatestVersion(link.id);
-    const nextVersion = latestSubmission ? latestSubmission.version + 1 : 1;
-
     try {
-      return await prisma.$transaction(async (tx) => {
-        await submissionRepository.deactivateCurrentVersion(link.id, tx);
+      // Corridas entre submissões concorrentes são resolvidas pelo próprio Postgres
+      // (unique index em version + isolamento serializable), nunca pela aplicação:
+      // uma das duas perde e recebe 409 para retentar, em vez de arriscar corromper
+      // o histórico de versões.
+      return await prisma.$transaction(
+        async (tx) => {
+          const latestSubmission = await submissionRepository.findLatestVersion(link.id, tx);
+          const nextVersion = latestSubmission ? latestSubmission.version + 1 : 1;
 
-        return submissionRepository.create(
-          {
-            collaboratorDocumentTypeId: link.id,
-            version: nextVersion,
-            ...(data.fileName !== undefined && { fileName: data.fileName }),
-          },
-          tx,
-        );
-      });
+          await submissionRepository.deactivateCurrentVersion(link.id, tx);
+
+          return submissionRepository.create(
+            {
+              collaboratorDocumentTypeId: link.id,
+              version: nextVersion,
+              ...(data.fileName !== undefined && { fileName: data.fileName }),
+            },
+            tx,
+          );
+        },
+        { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+      );
     } catch (error) {
-      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        (error.code === "P2002" || error.code === "P2034")
+      ) {
         throw new AppError("Envio concorrente detectado, tente novamente", 409);
       }
       throw error;
