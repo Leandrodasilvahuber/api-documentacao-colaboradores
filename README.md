@@ -1,5 +1,7 @@
 # api-documentacao-colaboradores
 
+[![CI](https://github.com/Leandrodasilvahuber/api-documentacao-colaboradores/actions/workflows/ci.yml/badge.svg)](https://github.com/Leandrodasilvahuber/api-documentacao-colaboradores/actions/workflows/ci.yml)
+
 API em Node.js + TypeScript (Express) para controle de documentos de colaboradores: cadastro de
 colaboradores, tipos de documento, vínculo entre eles, envio/histórico de versões de documentos e
 estatísticas de completude.
