@@ -48,7 +48,6 @@ describe("submissionService", () => {
         isCurrentVersion: true,
         fileName: "cpf.pdf",
         submittedAt: new Date(),
-        createdAt: new Date(),
       };
       mockedSubmissionRepository.create.mockResolvedValue(created);
 
@@ -77,7 +76,6 @@ describe("submissionService", () => {
         isCurrentVersion: true,
         fileName: "cpf.pdf",
         submittedAt: new Date(),
-        createdAt: new Date(),
       });
       const created = {
         id: "submission-2",
@@ -86,7 +84,6 @@ describe("submissionService", () => {
         isCurrentVersion: true,
         fileName: "cpf_v2.pdf",
         submittedAt: new Date(),
-        createdAt: new Date(),
       };
       mockedSubmissionRepository.create.mockResolvedValue(created);
 
@@ -117,7 +114,6 @@ describe("submissionService", () => {
         isCurrentVersion: true,
         fileName: null,
         submittedAt: new Date(),
-        createdAt: new Date(),
       });
 
       await submissionService.submit(activeLink.collaboratorId, activeLink.documentTypeId, {});
@@ -214,7 +210,6 @@ describe("submissionService", () => {
         isCurrentVersion: true,
         fileName: "cpf.pdf",
         submittedAt: new Date(),
-        createdAt: new Date(),
       });
       mockedSubmissionRepository.deactivateCurrentVersion.mockResolvedValue(undefined as never);
       mockedSubmissionRepository.create.mockRejectedValue(new Error("falha simulada"));

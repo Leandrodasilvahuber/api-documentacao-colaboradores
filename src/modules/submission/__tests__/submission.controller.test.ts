@@ -32,7 +32,6 @@ const submission = {
   fileName: "rg-frente.pdf",
   isCurrentVersion: true,
   submittedAt: new Date(),
-  createdAt: new Date(),
 };
 
 const serialized = <T>(value: T) => JSON.parse(JSON.stringify(value)) as unknown;
