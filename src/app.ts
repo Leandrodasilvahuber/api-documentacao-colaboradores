@@ -87,6 +87,10 @@ app.use("/collaborators/:collaboratorId/documents/:documentTypeId/submissions", 
 app.use("/documents", pendingDocumentRoutes);
 app.use("/statistics", statisticsRoutes);
 
+app.use((_req, res) => {
+  res.status(404).json({ message: "Rota não encontrada" });
+});
+
 app.use(errorHandler);
 
 export { app };
