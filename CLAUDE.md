@@ -39,6 +39,7 @@ Server port comes from `process.env.PORT`, defaulting to `3000`. Environment var
 - The Prisma Client is generated to `src/generated/prisma` (gitignored) and exported pre-configured from `src/shared/database/prisma.ts` using `@prisma/adapter-pg`.
 - Migrations live in `prisma/migrations/`. Both `collaborators.email` and `document_types.name` uniqueness are enforced by a **partial unique index** (`WHERE deleted_at IS NULL`), not a plain `@unique` in the Prisma schema — this lets a soft-deleted collaborator's email (or document type's name) be reused. Keep this in mind if the schema is ever regenerated from the DB or the constraint is touched again.
 - Soft-deleting a `Collaborator` or `DocumentType` cascades a soft delete to its `CollaboratorDocumentType` links (see `9367b9a`/`928b00c` in history) — don't assume deleting the parent leaves orphaned active links.
+- `collaborators.id`, `document_types.id`, and `collaborator_document_types(collaborator_id, document_type_id)` each have a **partial index** (`WHERE deleted_at IS NULL`), hand-written in `prisma/migrations/20260802175939_add_deleted_at_partial_indexes/migration.sql` for the same reason as the partial unique indexes above (Prisma Schema Language doesn't support `WHERE` in `@@index`) — they speed up the `deletedAt: null` filter used by nearly every read in these repositories.
 
 ## API testing collection
 

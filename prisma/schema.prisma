@@ -18,6 +18,9 @@ datasource db {
 // representável aqui via @unique/@@unique porque o Prisma Schema Language não suporta
 // índices únicos parciais (WHERE); um @unique puro quebraria o reaproveitamento de email
 // de colaboradores soft-deletados.
+// id também tem um índice parcial (não único) WHERE deleted_at IS NULL, criado à mão em
+// prisma/migrations/20260802175939_add_deleted_at_partial_indexes/migration.sql, para
+// acelerar os filtros deletedAt: null usados em praticamente toda leitura do repository.
 model Collaborator {
   id        String    @id @default(uuid())
   name      String
@@ -34,6 +37,9 @@ model Collaborator {
 // name tem um índice único parcial no banco (WHERE deleted_at IS NULL), criado à mão em
 // prisma/migrations/20260728204106_create_document_type_table/migration.sql — não é
 // representável aqui via @unique/@@unique pelo mesmo motivo do Collaborator.email acima.
+// id também tem um índice parcial (não único) WHERE deleted_at IS NULL, criado à mão em
+// prisma/migrations/20260802175939_add_deleted_at_partial_indexes/migration.sql, pelo
+// mesmo motivo do Collaborator.id acima.
 model DocumentType {
   id          String    @id @default(uuid())
   name        String
@@ -47,6 +53,10 @@ model DocumentType {
   @@map("document_types")
 }
 
+// O par (collaboratorId, documentTypeId) tem um índice parcial (não único) WHERE
+// deleted_at IS NULL, criado à mão em
+// prisma/migrations/20260802175939_add_deleted_at_partial_indexes/migration.sql, para
+// acelerar os filtros deletedAt: null usados nas leituras do repository.
 model CollaboratorDocumentType {
   id             String    @id @default(uuid())
   collaboratorId String    @map("collaborator_id")
