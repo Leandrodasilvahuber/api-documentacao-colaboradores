@@ -1,4 +1,5 @@
 import { AppError } from "../../../shared/errors/AppError";
+import { Prisma } from "../../../generated/prisma/client";
 import { prisma } from "../../../shared/database/prisma";
 import { collaboratorRepository } from "../../collaborator/collaborator.repository";
 import { documentTypeRepository } from "../../document-type/document-type.repository";
@@ -86,7 +87,9 @@ describe("collaboratorDocumentService", () => {
   describe("linkDocuments", () => {
     it("creates new links inside a transaction", async () => {
       mockedCollaboratorRepository.findById.mockResolvedValue(collaborator);
+      mockedCollaboratorRepository.findByIdActive.mockResolvedValue(collaborator);
       mockedDocumentTypeRepository.findById.mockResolvedValue(documentType);
+      mockedDocumentTypeRepository.findManyActiveByIds.mockResolvedValue([documentType]);
       mockedCollaboratorDocumentRepository.findByCollaboratorAndDocumentType.mockResolvedValue(
         null,
       );
@@ -126,7 +129,9 @@ describe("collaboratorDocumentService", () => {
 
     it("silently ignores document types already actively linked", async () => {
       mockedCollaboratorRepository.findById.mockResolvedValue(collaborator);
+      mockedCollaboratorRepository.findByIdActive.mockResolvedValue(collaborator);
       mockedDocumentTypeRepository.findById.mockResolvedValue(documentType);
+      mockedDocumentTypeRepository.findManyActiveByIds.mockResolvedValue([documentType]);
       mockedCollaboratorDocumentRepository.findByCollaboratorAndDocumentType.mockResolvedValue(
         activeLink,
       );
@@ -142,7 +147,9 @@ describe("collaboratorDocumentService", () => {
 
     it("reactivates previously soft-deleted links instead of creating duplicates", async () => {
       mockedCollaboratorRepository.findById.mockResolvedValue(collaborator);
+      mockedCollaboratorRepository.findByIdActive.mockResolvedValue(collaborator);
       mockedDocumentTypeRepository.findById.mockResolvedValue(documentType);
+      mockedDocumentTypeRepository.findManyActiveByIds.mockResolvedValue([documentType]);
       mockedCollaboratorDocumentRepository.findByCollaboratorAndDocumentType.mockResolvedValue(
         deletedLink,
       );
@@ -161,6 +168,73 @@ describe("collaboratorDocumentService", () => {
       );
       expect(mockedCollaboratorDocumentRepository.createMany).not.toHaveBeenCalled();
       expect(result.reactivated).toHaveLength(1);
+    });
+
+    it("throws 404 when the collaborator is soft-deleted concurrently inside the transaction", async () => {
+      mockedCollaboratorRepository.findById.mockResolvedValue(collaborator);
+      mockedCollaboratorRepository.findByIdActive.mockResolvedValue(null);
+      mockedDocumentTypeRepository.findById.mockResolvedValue(documentType);
+      mockedDocumentTypeRepository.findManyActiveByIds.mockResolvedValue([documentType]);
+      mockedCollaboratorDocumentRepository.findByCollaboratorAndDocumentType.mockResolvedValue(
+        null,
+      );
+
+      await expect(
+        collaboratorDocumentService.linkDocuments(collaborator.id, [documentType.id]),
+      ).rejects.toThrow(AppError);
+      expect(mockedCollaboratorDocumentRepository.createMany).not.toHaveBeenCalled();
+      expect(mockedCollaboratorDocumentRepository.reactivate).not.toHaveBeenCalled();
+    });
+
+    it("throws 404 when a document type is soft-deleted concurrently inside the transaction", async () => {
+      mockedCollaboratorRepository.findById.mockResolvedValue(collaborator);
+      mockedCollaboratorRepository.findByIdActive.mockResolvedValue(collaborator);
+      mockedDocumentTypeRepository.findById.mockResolvedValue(documentType);
+      mockedDocumentTypeRepository.findManyActiveByIds.mockResolvedValue([]);
+      mockedCollaboratorDocumentRepository.findByCollaboratorAndDocumentType.mockResolvedValue(
+        null,
+      );
+
+      await expect(
+        collaboratorDocumentService.linkDocuments(collaborator.id, [documentType.id]),
+      ).rejects.toThrow(AppError);
+      expect(mockedCollaboratorDocumentRepository.createMany).not.toHaveBeenCalled();
+      expect(mockedCollaboratorDocumentRepository.reactivate).not.toHaveBeenCalled();
+    });
+
+    it("throws 409 when the transaction fails with a serializable write conflict", async () => {
+      mockedCollaboratorRepository.findById.mockResolvedValue(collaborator);
+      mockedDocumentTypeRepository.findById.mockResolvedValue(documentType);
+      mockedCollaboratorDocumentRepository.findByCollaboratorAndDocumentType.mockResolvedValue(
+        null,
+      );
+      const writeConflictError = new Prisma.PrismaClientKnownRequestError(
+        "Transaction failed due to a write conflict or a deadlock",
+        { code: "P2034", clientVersion: "7.0.0" },
+      );
+      (prisma.$transaction as jest.Mock).mockRejectedValueOnce(writeConflictError);
+
+      await expect(
+        collaboratorDocumentService.linkDocuments(collaborator.id, [documentType.id]),
+      ).rejects.toMatchObject({
+        name: "AppError",
+        statusCode: 409,
+        message: "Conflito de concorrência ao vincular tipos de documento, tente novamente",
+      });
+    });
+
+    it("rethrows errors that are not a serializable write conflict", async () => {
+      mockedCollaboratorRepository.findById.mockResolvedValue(collaborator);
+      mockedDocumentTypeRepository.findById.mockResolvedValue(documentType);
+      mockedCollaboratorDocumentRepository.findByCollaboratorAndDocumentType.mockResolvedValue(
+        null,
+      );
+      const otherError = new Error("database is unreachable");
+      (prisma.$transaction as jest.Mock).mockRejectedValueOnce(otherError);
+
+      await expect(
+        collaboratorDocumentService.linkDocuments(collaborator.id, [documentType.id]),
+      ).rejects.toThrow("database is unreachable");
     });
   });
 

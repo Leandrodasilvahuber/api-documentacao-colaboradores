@@ -1,4 +1,5 @@
 import { prisma } from "../../shared/database/prisma";
+import { Prisma } from "../../generated/prisma/client";
 import { AppError } from "../../shared/errors/AppError";
 import { collaboratorRepository } from "../collaborator/collaborator.repository";
 import { documentTypeRepository } from "../document-type/document-type.repository";
@@ -47,16 +48,49 @@ export const collaboratorDocumentService = {
       }
     }
 
-    return prisma.$transaction(async (tx) => {
-      const reactivated = await Promise.all(
-        toReactivate.map((id) => collaboratorDocumentRepository.reactivate(id, tx)),
+    try {
+      return await prisma.$transaction(
+        async (tx) => {
+          const collaboratorStillActive = await collaboratorRepository.findByIdActive(
+            collaboratorId,
+            tx,
+          );
+          if (!collaboratorStillActive) {
+            throw new AppError("Colaborador não encontrado", 404);
+          }
+
+          const activeDocumentTypes = await documentTypeRepository.findManyActiveByIds(
+            documentTypeIds,
+            tx,
+          );
+          const activeIds = new Set(activeDocumentTypes.map((documentType) => documentType.id));
+          const missingIds = documentTypeIds.filter((id) => !activeIds.has(id));
+          if (missingIds.length > 0) {
+            throw new AppError(`Tipo de documento não encontrado: ${missingIds.join(", ")}`, 404);
+          }
+
+          const reactivated = await Promise.all(
+            toReactivate.map((id) => collaboratorDocumentRepository.reactivate(id, tx)),
+          );
+
+          const created =
+            toCreate.length > 0
+              ? await collaboratorDocumentRepository.createMany(toCreate, tx)
+              : [];
+
+          return { created, reactivated };
+        },
+        { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
       );
-
-      const created =
-        toCreate.length > 0 ? await collaboratorDocumentRepository.createMany(toCreate, tx) : [];
-
-      return { created, reactivated };
-    });
+    } catch (error) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2034") {
+        throw new AppError(
+          "Conflito de concorrência ao vincular tipos de documento, tente novamente",
+          409,
+        );
+      }
+      throw error;
+    }
   },
 
   async unlinkDocument(collaboratorId: string, documentTypeId: string) {

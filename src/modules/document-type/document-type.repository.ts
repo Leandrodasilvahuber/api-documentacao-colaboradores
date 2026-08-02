@@ -27,6 +27,10 @@ export const documentTypeRepository = {
     return prisma.documentType.findFirst({ where: { name, deletedAt: null } });
   },
 
+  findManyActiveByIds(ids: string[], client: Client = prisma) {
+    return client.documentType.findMany({ where: { id: { in: ids }, deletedAt: null } });
+  },
+
   update(id: string, data: UpdateDocumentTypeInput) {
     const cleanData = Object.fromEntries(
       Object.entries(data).filter(([, value]) => value !== undefined),

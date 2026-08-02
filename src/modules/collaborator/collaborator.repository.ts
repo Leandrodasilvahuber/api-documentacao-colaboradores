@@ -25,6 +25,10 @@ export const collaboratorRepository = {
     return prisma.collaborator.findFirst({ where: { email, deletedAt: null } });
   },
 
+  findByIdActive(id: string, client: Client = prisma) {
+    return client.collaborator.findFirst({ where: { id, deletedAt: null } });
+  },
+
   update(id: string, data: UpdateCollaboratorInput) {
     const cleanData = Object.fromEntries(
       Object.entries(data).filter(([, value]) => value !== undefined),
