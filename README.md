@@ -61,8 +61,9 @@ gerada a partir dos comentários `@openapi` em cada arquivo `*.routes.ts` (ver `
 - **Validação de ambiente no boot**: `src/config/env.ts` valida `NODE_ENV`, `PORT`, `DATABASE_URL`
   e `LOG_LEVEL` com zod e lança erro imediatamente se algo estiver inválido, evitando falhas
   silenciosas em runtime.
-- **CORS liberado**: `app.use(cors())` em `src/app.ts` libera qualquer origem, permitindo que
-  clientes fora da API consumam os endpoints via `fetch` sem bloqueio do navegador.
+- **CORS liberado**: `app.use(cors({ origin: true }))` em `src/app.ts` reflete a origem da
+  requisição (qualquer origem é aceita, sem usar o literal `'*'`), permitindo que clientes fora da
+  API consumam os endpoints via `fetch` sem bloqueio do navegador.
 
 ## Requisitos
 
