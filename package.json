@@ -1,6 +1,6 @@
 {
   "name": "api-documentacao-colaboradores",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "API Node.js + TypeScript (Express/Prisma/PostgreSQL) para controle de documentos de colaboradores: cadastro, vínculo de tipos de documento, envio/histórico de versões e estatísticas de completude.",
   "main": "dist/server.js",
   "scripts": {
