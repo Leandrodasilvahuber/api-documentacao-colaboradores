@@ -10,6 +10,7 @@ import { statisticsRoutes } from "./modules/statistics/statistics.routes";
 import { errorHandler } from "./shared/middlewares/errorHandler";
 import { logger } from "./shared/logger";
 import { swaggerSpec } from "./config/swagger";
+import { prisma } from "./shared/database/prisma";
 
 const app = express();
 app.disable("x-powered-by");
@@ -40,6 +41,43 @@ app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
  */
 app.get("/", (_req, res) => {
   res.json({ message: "api-documentacao-colaboradores" });
+});
+
+/**
+ * @openapi
+ * /health:
+ *   get:
+ *     tags: [Health]
+ *     summary: Verifica se a API consegue se comunicar com o banco de dados
+ *     responses:
+ *       200:
+ *         description: Aplicação e banco de dados respondendo normalmente
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: ok
+ *       503:
+ *         description: Banco de dados indisponível
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 status:
+ *                   type: string
+ *                   example: unavailable
+ */
+app.get("/health", async (_req, res) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+    res.json({ status: "ok" });
+  } catch {
+    res.status(503).json({ status: "unavailable" });
+  }
 });
 
 app.use("/collaborators", collaboratorRoutes);
