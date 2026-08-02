@@ -1,7 +1,7 @@
 {
   "name": "api-documentacao-colaboradores",
   "version": "1.4.0",
-  "description": "",
+  "description": "API Node.js + TypeScript (Express/Prisma/PostgreSQL) para controle de documentos de colaboradores: cadastro, vínculo de tipos de documento, envio/histórico de versões e estatísticas de completude.",
   "main": "dist/server.js",
   "scripts": {
     "build": "tsc",
@@ -27,8 +27,16 @@
     "type": "git",
     "url": "git+https://github.com/Leandrodasilvahuber/api-documentacao-colaboradores.git"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "express",
+    "typescript",
+    "prisma",
+    "postgresql",
+    "rest-api",
+    "colaboradores",
+    "documentos"
+  ],
+  "author": "Leandro Huber",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/Leandrodasilvahuber/api-documentacao-colaboradores/issues"

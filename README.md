@@ -33,6 +33,71 @@ Módulos da aplicação (`src/modules`):
 Documentação interativa (Swagger/OpenAPI) fica disponível em `/docs` quando a API está rodando,
 gerada a partir dos comentários `@openapi` em cada arquivo `*.routes.ts` (ver `src/config/swagger.ts`).
 
+### Modelo de dados
+
+```mermaid
+erDiagram
+    COLLABORATOR ||--o{ COLLABORATOR_DOCUMENT_TYPE : "vincula"
+    DOCUMENT_TYPE ||--o{ COLLABORATOR_DOCUMENT_TYPE : "é exigido em"
+    COLLABORATOR_DOCUMENT_TYPE ||--o{ DOCUMENT_SUBMISSION : "tem versões"
+
+    COLLABORATOR {
+        string id PK
+        string name
+        string email
+        datetime deletedAt "soft delete"
+    }
+    DOCUMENT_TYPE {
+        string id PK
+        string name
+        string description
+        datetime deletedAt "soft delete"
+    }
+    COLLABORATOR_DOCUMENT_TYPE {
+        string id PK
+        string collaboratorId FK
+        string documentTypeId FK
+        datetime deletedAt "soft delete"
+    }
+    DOCUMENT_SUBMISSION {
+        string id PK
+        string collaboratorDocumentTypeId FK
+        int version
+        boolean isCurrentVersion
+        string fileName
+        datetime submittedAt
+    }
+```
+
+## Escopo atendido e decisões conscientes
+
+O que a API cobre hoje:
+
+- CRUD completo de `Collaborator` e `DocumentType`, com soft delete e listagem paginada.
+- Vínculo/desvínculo de tipos de documento a colaboradores, com reativação de vínculo
+  soft-deletado em vez de duplicar registro.
+- Envio de documentos com histórico de versões completo (nunca sobrescreve, sempre cria uma nova
+  versão e desativa a anterior).
+- Estatísticas de completude, ranking de pendências e envios recentes, como endpoints somente
+  leitura separados (ver "Endpoints de estatísticas" abaixo).
+- Documentação interativa (Swagger) e uma coleção Bruno cobrindo os principais casos de sucesso e
+  erro de cada endpoint.
+
+O que foi deixado fora de escopo, conscientemente:
+
+- **Autenticação/autorização**: não há login, tokens ou controle de acesso — qualquer cliente que
+  alcance a API pode chamar qualquer endpoint. Adequado para o escopo atual (ferramenta interna),
+  mas é o primeiro ponto a endereçar antes de expor a API publicamente.
+- **Armazenamento real de arquivo**: `fileName` é só uma string livre no envio de documento; não
+  há upload de binário, storage (S3/disco) nem validação de conteúdo do arquivo.
+- **Rate limiting e proteção contra abuso**: não há `express-rate-limit`, `helmet` ou throttling —
+  a API assume um ambiente confiável (rede interna).
+- **Purga definitiva de registros soft-deletados**: não existe rotina de limpeza/expurgo; os
+  registros com `deletedAt` preenchido permanecem no banco indefinidamente.
+- **Cache**: cada leitura (incluindo as estatísticas) bate direto no Postgres; não há camada de
+  cache, o que é aceitável no volume de dados atual mas pode exigir revisão se o número de
+  colaboradores/documentos crescer significativamente.
+
 ## Decisões técnicas
 
 - **Arquitetura em camadas por módulo**: `*.schema.ts` (validação com zod) → `*.repository.ts`
@@ -48,11 +113,7 @@ gerada a partir dos comentários `@openapi` em cada arquivo `*.routes.ts` (ver `
   migration correspondente — não representável em `@unique`/`@@unique` do Prisma Schema Language.
   Isso permite reaproveitar o email/nome de um registro soft-deletado. Violações de unicidade
   concorrente (`P2002`) são tratadas na camada de serviço e convertidas em erro 409.
-- **Versionamento de documentos com controle de concorrência**: cada envio roda em uma transação
-  Prisma que desativa a versão atual e cria a nova; um índice único em
-  `(collaboratorDocumentTypeId, version)` garante que envios concorrentes para o mesmo vínculo não
-  gerem versões duplicadas — o conflito vira um 409 ("Envio concorrente detectado, tente
-  novamente") em vez de dado inconsistente.
+- **Versionamento de documentos com controle de concorrência**: ver seção "Concorrência" abaixo.
 - **Erros de domínio tipados**: `AppError` (com `statusCode`) é lançado pelos serviços e traduzido
   para respostas HTTP pelo middleware `errorHandler`; erros de validação `zod` (`ZodError`) viram
   400 com o detalhamento das issues automaticamente.
@@ -66,6 +127,25 @@ gerada a partir dos comentários `@openapi` em cada arquivo `*.routes.ts` (ver `
 - **CORS liberado**: `app.use(cors({ origin: true }))` em `src/app.ts` reflete a origem da
   requisição (qualquer origem é aceita, sem usar o literal `'*'`), permitindo que clientes fora da
   API consumam os endpoints via `fetch` sem bloqueio do navegador.
+
+## Concorrência
+
+Dois pontos do domínio têm corrida real entre requisições concorrentes, e ambos são resolvidos
+pelo Postgres, não pela aplicação (a aplicação só traduz a violação em um 409 para o cliente
+retentar):
+
+- **Unicidade de `collaborators.email` / `document_types.name`**: garantida por um índice único
+  parcial (`WHERE deleted_at IS NULL`) no banco — ver "Unicidade parcial via índice no banco"
+  acima. Duas requisições criando o mesmo email/nome ao mesmo tempo geram um
+  `Prisma.PrismaClientKnownRequestError` código `P2002`, convertido em 409 na camada de serviço.
+- **Versionamento de envio de documento** (`submissionService.submit`,
+  `src/modules/submission/submission.service.ts`): cada envio roda em uma transação Prisma com
+  isolamento `Serializable` que lê a última versão, desativa-a e cria a próxima. Um índice único
+  em `(collaboratorDocumentTypeId, version)` garante que duas transações concorrentes para o
+  mesmo vínculo nunca calculem e persistam a mesma próxima versão. O Postgres pode rejeitar uma
+  das duas transações com `P2002` (violação do índice único) ou `P2034` (falha de serialização);
+  ambos os códigos são tratados igualmente e viram 409 ("Envio concorrente detectado, tente
+  novamente") — o cliente perdedor deve simplesmente reenviar a requisição.
 
 ## Requisitos
 
@@ -274,9 +354,11 @@ parâmetro de query `limit` (1 a 100, padrão 10).
 [
   {
     "id": "d4f2...",
+    "collaboratorDocumentTypeId": "e5f6...",
     "version": 2,
     "isCurrentVersion": true,
-    "createdAt": "2026-07-30T12:00:00.000Z",
+    "fileName": "rg-frente.pdf",
+    "submittedAt": "2026-07-30T12:00:00.000Z",
     "collaboratorDocumentType": {
       "collaborator": { "id": "a1b2...", "name": "Maria Silva", "email": "maria@example.com" },
       "documentType": { "id": "c3d4...", "name": "RG" }

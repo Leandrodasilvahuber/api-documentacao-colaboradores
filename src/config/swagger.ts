@@ -87,7 +87,6 @@ const swaggerSpec = swaggerJSDoc({
             isCurrentVersion: { type: "boolean" },
             fileName: { type: "string", nullable: true, example: "rg-frente.pdf" },
             submittedAt: { type: "string", format: "date-time" },
-            createdAt: { type: "string", format: "date-time" },
           },
         },
         PaginationMeta: {
