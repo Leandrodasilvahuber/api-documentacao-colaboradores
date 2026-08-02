@@ -26,7 +26,7 @@ Módulos da aplicação (`src/modules`):
 | `document-type`         | `/document-types`                                                                            | CRUD de tipos de documento, com soft delete e listagem paginada                         |
 | `collaborator-document` | `/collaborators/:collaboratorId/documents`                                                   | Vincula/desvincula tipos de documento a um colaborador                                  |
 | `submission`            | `/collaborators/:collaboratorId/documents/:documentTypeId/submissions`, `/documents/pending` | Envio de novas versões de documento, histórico e listagem paginada de pendências        |
-| `statistics`            | `/statistics`                                                                                | Percentual de completude, ranking de pendências por tipo de documento e envios recentes |
+| `statistics`            | `/statistics/completion`, `/statistics/pending-ranking`, `/statistics/recent-submissions`    | Percentual de completude, ranking de pendências por tipo de documento e envios recentes |
 
 Documentação interativa (Swagger/OpenAPI) fica disponível em `/docs` quando a API está rodando,
 gerada a partir dos comentários `@openapi` em cada arquivo `*.routes.ts` (ver `src/config/swagger.ts`).
@@ -221,3 +221,64 @@ estão cobertos pelos testes unitários e pela coleção Bruno.
   paginação, filtros). Use o ambiente `Local` (`baseUrl`).
 - **Swagger UI**: com a API rodando, acesse `/docs` para explorar e testar os endpoints
   interativamente, com os schemas de request/response documentados.
+
+## Endpoints de estatísticas
+
+O módulo `statistics` expõe três endpoints somente leitura, cada um respondendo a um caso de uso
+distinto em vez de um único endpoint agregado. A separação existe porque cada agregação tem um
+custo e um ritmo de evolução diferentes: `completion` é uma contagem simples e barata,
+`pending-ranking` exige agrupar e ordenar por tipo de documento, e `recent-submissions` faz join
+com colaborador e tipo de documento e aceita paginação por `limit`. Manter os contratos separados
+evita que uma mudança em um deles obrigue a versionar a resposta dos outros, e permite aplicar
+políticas de cache/performance diferentes por endpoint no futuro.
+
+### `GET /statistics/completion`
+
+Percentual geral de conclusão de envio de documentos.
+
+```json
+{
+  "total": 50,
+  "submitted": 35,
+  "pending": 15,
+  "percentage": 70.0
+}
+```
+
+### `GET /statistics/pending-ranking`
+
+Ranking de tipos de documento por quantidade de pendências (apenas tipos com ao menos uma
+pendência, do mais para o menos pendente; empates são desfeitos em ordem alfabética pelo nome do
+tipo de documento).
+
+```json
+[
+  {
+    "documentTypeId": "b3e1...",
+    "documentTypeName": "RG",
+    "total": 20,
+    "submitted": 12,
+    "pending": 8
+  }
+]
+```
+
+### `GET /statistics/recent-submissions`
+
+Envios de documento mais recentes, com dados do colaborador e do tipo de documento. Aceita o
+parâmetro de query `limit` (1 a 100, padrão 10).
+
+```json
+[
+  {
+    "id": "d4f2...",
+    "version": 2,
+    "isCurrentVersion": true,
+    "createdAt": "2026-07-30T12:00:00.000Z",
+    "collaboratorDocumentType": {
+      "collaborator": { "id": "a1b2...", "name": "Maria Silva", "email": "maria@example.com" },
+      "documentType": { "id": "c3d4...", "name": "RG" }
+    }
+  }
+]
+```
