@@ -7,5 +7,9 @@ export const createDocumentTypeSchema = z.object({
 
 export const updateDocumentTypeSchema = createDocumentTypeSchema.partial();
 
+export const documentTypeParamsSchema = z.object({
+  id: z.uuid("id inválido"),
+});
+
 export type CreateDocumentTypeInput = z.infer<typeof createDocumentTypeSchema>;
 export type UpdateDocumentTypeInput = z.infer<typeof updateDocumentTypeSchema>;

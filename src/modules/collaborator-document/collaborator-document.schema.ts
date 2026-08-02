@@ -7,4 +7,12 @@ export const linkDocumentsSchema = z.object({
     .transform((ids) => [...new Set(ids)]),
 });
 
+export const collaboratorDocumentParamsSchema = z.object({
+  collaboratorId: z.uuid("collaboratorId inválido"),
+});
+
+export const collaboratorDocumentUnlinkParamsSchema = collaboratorDocumentParamsSchema.extend({
+  documentTypeId: z.uuid("documentTypeId inválido"),
+});
+
 export type LinkDocumentsInput = z.infer<typeof linkDocumentsSchema>;

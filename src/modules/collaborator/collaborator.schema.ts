@@ -7,5 +7,9 @@ export const createCollaboratorSchema = z.object({
 
 export const updateCollaboratorSchema = createCollaboratorSchema.partial();
 
+export const collaboratorParamsSchema = z.object({
+  id: z.uuid("id inválido"),
+});
+
 export type CreateCollaboratorInput = z.infer<typeof createCollaboratorSchema>;
 export type UpdateCollaboratorInput = z.infer<typeof updateCollaboratorSchema>;

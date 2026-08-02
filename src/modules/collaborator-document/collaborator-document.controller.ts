@@ -1,13 +1,16 @@
 import { NextFunction, Request, Response } from "express";
 import { collaboratorDocumentService } from "./collaborator-document.service";
-import { linkDocumentsSchema } from "./collaborator-document.schema";
+import {
+  collaboratorDocumentParamsSchema,
+  collaboratorDocumentUnlinkParamsSchema,
+  linkDocumentsSchema,
+} from "./collaborator-document.schema";
 
 export const collaboratorDocumentController = {
   async list(req: Request, res: Response, next: NextFunction) {
     try {
-      const documents = await collaboratorDocumentService.listByCollaborator(
-        req.params.collaboratorId as string,
-      );
+      const { collaboratorId } = collaboratorDocumentParamsSchema.parse(req.params);
+      const documents = await collaboratorDocumentService.listByCollaborator(collaboratorId);
       res.status(200).json(documents);
     } catch (error) {
       next(error);
@@ -16,9 +19,10 @@ export const collaboratorDocumentController = {
 
   async link(req: Request, res: Response, next: NextFunction) {
     try {
+      const { collaboratorId } = collaboratorDocumentParamsSchema.parse(req.params);
       const { documentTypeIds } = linkDocumentsSchema.parse(req.body);
       const result = await collaboratorDocumentService.linkDocuments(
-        req.params.collaboratorId as string,
+        collaboratorId,
         documentTypeIds,
       );
       res.status(201).json(result);
@@ -29,10 +33,10 @@ export const collaboratorDocumentController = {
 
   async unlink(req: Request, res: Response, next: NextFunction) {
     try {
-      await collaboratorDocumentService.unlinkDocument(
-        req.params.collaboratorId as string,
-        req.params.documentTypeId as string,
+      const { collaboratorId, documentTypeId } = collaboratorDocumentUnlinkParamsSchema.parse(
+        req.params,
       );
+      await collaboratorDocumentService.unlinkDocument(collaboratorId, documentTypeId);
       res.status(204).send();
     } catch (error) {
       next(error);

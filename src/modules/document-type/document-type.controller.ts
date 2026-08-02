@@ -1,7 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import { paginationSchema } from "../../shared/utils/pagination";
 import { documentTypeService } from "./document-type.service";
-import { createDocumentTypeSchema, updateDocumentTypeSchema } from "./document-type.schema";
+import {
+  createDocumentTypeSchema,
+  documentTypeParamsSchema,
+  updateDocumentTypeSchema,
+} from "./document-type.schema";
 
 export const documentTypeController = {
   async create(req: Request, res: Response, next: NextFunction) {
@@ -26,7 +30,8 @@ export const documentTypeController = {
 
   async findById(req: Request, res: Response, next: NextFunction) {
     try {
-      const documentType = await documentTypeService.findById(req.params.id as string);
+      const { id } = documentTypeParamsSchema.parse(req.params);
+      const documentType = await documentTypeService.findById(id);
       res.status(200).json(documentType);
     } catch (error) {
       next(error);
@@ -35,8 +40,9 @@ export const documentTypeController = {
 
   async update(req: Request, res: Response, next: NextFunction) {
     try {
+      const { id } = documentTypeParamsSchema.parse(req.params);
       const data = updateDocumentTypeSchema.parse(req.body);
-      const documentType = await documentTypeService.update(req.params.id as string, data);
+      const documentType = await documentTypeService.update(id, data);
       res.status(200).json(documentType);
     } catch (error) {
       next(error);
@@ -45,7 +51,8 @@ export const documentTypeController = {
 
   async delete(req: Request, res: Response, next: NextFunction) {
     try {
-      await documentTypeService.delete(req.params.id as string);
+      const { id } = documentTypeParamsSchema.parse(req.params);
+      await documentTypeService.delete(id);
       res.status(204).send();
     } catch (error) {
       next(error);
