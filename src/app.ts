@@ -14,8 +14,7 @@ import { swaggerSpec } from "./config/swagger";
 const app = express();
 app.disable("x-powered-by");
 
-// eslint-disable-next-line sonarjs/cors -- API pública sem cookies/sessão; CORS aberto é intencional (ver README)
-app.use(cors());
+app.use(cors({ origin: true }));
 app.use(pinoHttp({ logger }));
 app.use(express.json());
 
