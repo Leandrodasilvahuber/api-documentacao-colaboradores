@@ -1,12 +1,18 @@
+import fs from "node:fs";
+import path from "node:path";
 import swaggerJSDoc from "swagger-jsdoc";
 import { env } from "./env";
+
+const pkg = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), "package.json"), "utf-8")) as {
+  version: string;
+};
 
 const swaggerSpec = swaggerJSDoc({
   definition: {
     openapi: "3.0.0",
     info: {
       title: "API de Documentação de Colaboradores",
-      version: "1.0.0",
+      version: pkg.version,
       description:
         "API para gestão de colaboradores, tipos de documento, vínculos entre eles e envio/histórico de versões de documentos.",
     },
