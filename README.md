@@ -127,6 +127,17 @@ O que foi deixado fora de escopo, conscientemente:
 - **CORS liberado**: `app.use(cors({ origin: true }))` em `src/app.ts` reflete a origem da
   requisição (qualquer origem é aceita, sem usar o literal `'*'`), permitindo que clientes fora da
   API consumam os endpoints via `fetch` sem bloqueio do navegador.
+- **Health checks e encerramento gracioso**: `GET /` confirma que a API está no ar; `GET /health`
+  também verifica a conectividade com o banco (`SELECT 1`), retornando 503 se o Postgres estiver
+  indisponível. Rotas não mapeadas caem em um handler 404 genérico antes do `errorHandler`. Ao
+  receber `SIGTERM`/`SIGINT`, `src/server.ts` para de aceitar novas conexões, fecha a conexão do
+  Prisma e encerra o processo — com um timeout de 10s que força a saída caso o fechamento trave.
+
+> [!CAUTION]
+> A política de CORS atual aceita **qualquer origem** (`origin: true` reflete o header
+> `Origin` da requisição, sem whitelist). Isso é proposital para facilitar consumo da API
+> em desenvolvimento, mas deve ser revisado antes de expor a API publicamente em produção
+> — considere restringir a uma lista de origens confiáveis via variável de ambiente.
 
 ## Concorrência
 
@@ -272,10 +283,22 @@ desenvolvimento.
    manualmente. Cada suíte limpa as tabelas (via `deleteMany`, respeitando as foreign keys) antes de
    rodar, garantindo isolamento entre os testes.
 
-Cobertura atual: um fluxo feliz ponta a ponta (criar colaborador → criar tipo de documento →
-vincular → enviar documento → reenviar → histórico → pendências → estatísticas) e os erros
-principais (409 de email duplicado, 404 de vínculo inexistente). Casos de erro mais granulares já
-estão cobertos pelos testes unitários e pela coleção Bruno.
+Cobertura atual (4 arquivos, 17 testes em `e2e/`):
+
+- **Fluxo feliz ponta a ponta**: criar colaborador → criar tipo de documento → vincular → enviar
+  documento → reenviar (versão 2) → histórico de versões → pendências → estatísticas de
+  completude.
+- **Soft delete e reativação**: reativar um vínculo removido em vez de criar um novo registro;
+  cascata de soft delete dos vínculos ativos ao remover um colaborador ou um tipo de documento.
+- **Concorrência**: submits paralelos para o mesmo vínculo aceitam apenas uma versão e rejeitam o
+  restante com 409.
+- **Pendências e estatísticas**: filtro combinado de `/documents/pending` por `collaboratorName` +
+  `documentTypeId`; exclusão de pendências de colaborador removido; ranking de pendências,
+  completude e envios recentes refletindo um cenário rico com múltiplos colaboradores/tipos.
+- **Erros principais**: 409 de email duplicado, 404 de vínculo inexistente ao enviar documento.
+
+Casos de erro mais granulares (400 de payload inválido, outros 404) já estão cobertos pelos testes
+unitários e pela coleção Bruno.
 
 > O client do Prisma 7 usa um engine WASM carregado via `import()` dinâmico, que exige a flag
 > `NODE_OPTIONS=--experimental-vm-modules` para rodar dentro do Jest — o script `test:e2e` já
@@ -296,6 +319,11 @@ estão cobertos pelos testes unitários e pela coleção Bruno.
 2. Para criar/aplicar migrações a partir de `prisma/schema.prisma`: `npm run prisma:migrate`.
 3. O client gerado fica em `src/generated/prisma` (ignorado pelo git) e é exportado já configurado
    em `src/shared/database/prisma.ts`, usando `@prisma/adapter-pg`.
+4. A versão `^7.9.1` foi escolhida deliberadamente: é a primeira linha do Prisma com suporte
+   nativo a _driver adapters_ (`@prisma/adapter-pg`), usados em `src/shared/database/prisma.ts`
+   para conectar via `pg` sem depender do engine binário tradicional. A contrapartida é o engine
+   WASM carregado via `import()` dinâmico (ver nota na seção de testes e2e), que exige a flag
+   `NODE_OPTIONS=--experimental-vm-modules` no Jest.
 
 ## Testando a API
 
